@@ -6,6 +6,7 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
+    <!-- رنگ‌های ثابت موجود -->
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
@@ -28,6 +29,17 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- 🔁 نسخه بدون OnAppTheme/AppThemeColor: کلیدهای Light/Dark جدا -->
+    <Color x:Key="ColorBackgroundLight">#FFFFFFFF</Color>
+    <Color x:Key="ColorBackgroundDark">#121212</Color>
+
+    <Color x:Key="ColorSurfaceLight">#F6F6F6</Color>
+    <Color x:Key="ColorSurfaceDark">#1E1E1E</Color>
+
+    <Color x:Key="ColorTextPrimaryLight">#111111</Color>
+    <Color x:Key="ColorTextPrimaryDark">#FFFFFF</Color>
+
+    <!-- براش‌های موجود -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
@@ -42,4 +54,19 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- ✅ براش‌های تمی با AppThemeBinding (بدون نیاز به OnAppTheme) -->
+    <SolidColorBrush x:Key="BackgroundBrush"
+                     Color="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}"/>
+    <SolidColorBrush x:Key="SurfaceBrush"
+                     Color="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}"/>
+    <SolidColorBrush x:Key="PrimaryTextBrush"
+                     Color="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}"/>
+
+    <!-- برای سازگاری با استایل‌های فعلی که از Color* استفاده می‌کنند -->
+    <Color x:Key="ColorBackground">#FFFFFFFF</Color>
+    <Color x:Key="ColorSurface">#F6F6F6</Color>
+    <Color x:Key="ColorTextPrimary">#111111</Color>
+    <!-- ↑ اگر بخواهیم همین‌ها هم تمی شوند، باید Styles.xaml را هم کمی ویرایش کنیم (در قدم بعدی). -->
+
 </ResourceDictionary>

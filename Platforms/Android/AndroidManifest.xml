@@ -1,6 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.INTERNET" />
+
+  <!-- Permissions -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <!-- Android 13+ needs this for notifications -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+  <application
+      android:allowBackup="true"
+      android:label="Spy"
+      android:icon="@mipmap/appicon"
+      android:roundIcon="@mipmap/appicon_round"
+      android:supportsRtl="true">
+
+    <!-- Foreground service for lockscreen timer -->
+    <service
+        android:name="SpyGame.Platforms.Android.Services.GameTimerService"
+        android:exported="false"
+        android:foregroundServiceType="mediaPlayback" />
+  </application>
 </manifest>

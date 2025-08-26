@@ -1,4 +1,4 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:SpyGame"
@@ -6,8 +6,22 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+
+                <!-- رنگ‌ها و استایل‌های اصلی -->
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+
+                <!-- تم‌های اختیاری (در صورت ایجاد فایل‌ها، این بلاک را از حالت کامنت خارج کن)
+                <OnAppTheme x:TypeArguments="ResourceDictionary">
+                    <OnAppTheme.Light>
+                        <ResourceDictionary Source="Resources/Styles/LightTheme.xaml" />
+                    </OnAppTheme.Light>
+                    <OnAppTheme.Dark>
+                        <ResourceDictionary Source="Resources/Styles/DarkTheme.xaml" />
+                    </OnAppTheme.Dark>
+                </OnAppTheme>
+                -->
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

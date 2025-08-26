@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.TimerPage"
+             Title="تایمر بازی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <!-- مخفی کردن فلش Back -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+
+    <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+        <!-- اطلاعات بازی -->
+        <HorizontalStackLayout Spacing="24" HorizontalOptions="Center">
+            <Label x:Name="PlayersInfoLabel"
+                   FontSize="16"
+                   TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+            <Label x:Name="SpiesInfoLabel"
+                   FontSize="16"
+                   TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+        </HorizontalStackLayout>
+
+        <!-- تایمر -->
+        <Label x:Name="TimerLabel"
+               FontSize="72"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+        <!-- توضیح -->
+        <Label x:Name="WarningLabel"
+           FontSize="36"
+           HorizontalTextAlignment="Center"
+           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+        
+        <!-- توضیح -->
+        <Label x:Name="WordHintLabel"
+               FontSize="18"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+
+        <!-- کنترل‌ها -->
+        <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+            <Button Text="شروع / مکث" Clicked="OnStartPause" FontSize="Large"/>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+            <Button Text="ریست" Clicked="OnReset"/>
+            <Button Text="اتمام بازی" Clicked="OnFinish"/>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

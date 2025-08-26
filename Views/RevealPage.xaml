@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.RevealPage"
+             Title="نمایش به بازیکن"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <!-- مخفی کردن فلش Back در نوار بالایی -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+
+    <Grid Padding="24" RowDefinitions="Auto,*,*,Auto,Auto" RowSpacing="16">
+
+        <!-- شماره بازیکن -->
+        <Label x:Name="PlayerIndexLabel"
+               FontSize="18"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+
+        <!-- نمایش کلمه یا جاسوس -->
+        <Label x:Name="WordLabel"
+               Grid.Row="1"
+               FontSize="36"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+
+        <!-- دکمه دایره‌ای -->
+        <Button x:Name="RevealButton"
+                Grid.Row="2"
+                Text="نمایش"
+                FontSize="Medium"
+                Clicked="OnRevealClicked"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+            <Button.WidthRequest>
+                <OnIdiom x:TypeArguments="x:Double">
+                    <OnIdiom.Phone>200</OnIdiom.Phone>
+                    <OnIdiom.Tablet>300</OnIdiom.Tablet>
+                </OnIdiom>
+            </Button.WidthRequest>
+            <Button.HeightRequest>
+                <OnIdiom x:TypeArguments="x:Double">
+                    <OnIdiom.Phone>200</OnIdiom.Phone>
+                    <OnIdiom.Tablet>300</OnIdiom.Tablet>
+                </OnIdiom>
+            </Button.HeightRequest>
+            <Button.CornerRadius>
+                <OnIdiom x:TypeArguments="x:Int32">
+                    <OnIdiom.Phone>100</OnIdiom.Phone>
+                    <OnIdiom.Tablet>150</OnIdiom.Tablet>
+                </OnIdiom>
+            </Button.CornerRadius>
+        </Button>
+
+        <!-- راهنما -->
+        <Label Grid.Row="3"
+               Text="هر بازیکن: بار اول برای دیدن نقش/کلمه → بار دوم تحویل به نفر بعد."
+               FontSize="12"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+
+        <!-- دکمه بازگشت به Setup (Root Navigation) -->
+        <Button Grid.Row="4"
+                Text="بازگشت به Setup"
+                Clicked="OnBackToSetup"
+                HorizontalOptions="Center"
+                VerticalOptions="End"
+                BackgroundColor="LightGray"
+                TextColor="Black"
+                Padding="10,5"/>
+    </Grid>
+</ContentPage>

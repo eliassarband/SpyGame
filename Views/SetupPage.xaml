@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.SetupPage"
+             Title="تنظیمات بازی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{DynamicResource ColorBackground}">
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20">
+
+            <Label Text="دسته‌بندی"
+                   FontSize="16"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+            <Picker x:Name="CategoryPicker" FontSize="Large"
+                    ItemDisplayBinding="{Binding Name}" />
+
+            <Label Text="تعداد بازیکن"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+            <Stepper x:Name="PlayersStepper"
+                     Minimum="3" Maximum="20" Increment="1" Value="6" />
+            <Label x:Name="PlayersLabel"
+                   Text="6" HorizontalOptions="End" FontSize="Large"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+
+            <Label Text="تعداد جاسوس"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+            <Stepper x:Name="SpiesStepper"
+                     Minimum="1" Maximum="10" Increment="1" Value="2" />
+            <Label x:Name="SpiesLabel"
+                   Text="2" HorizontalOptions="End" FontSize="Large"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+
+            <Label Text="زمان (دقیقه)"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+            <Stepper x:Name="MinutesStepper"
+                     Minimum="1" Maximum="20" Increment="1" Value="5" />
+            <Label x:Name="MinutesLabel"
+                   Text="5" HorizontalOptions="End" FontSize="Large"
+                   TextColor="{DynamicResource ColorTextPrimary}" />
+
+            <Button Text="شروع بازی" Clicked="OnStartClicked" FontSize="Large" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
