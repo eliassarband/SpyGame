@@ -3,12 +3,14 @@
 using SQLite;
 using SpyGame.Models;
 using System.Text.Json;
+using System.Globalization;
 
 public class AppDatabase
 {
     private readonly SQLiteAsyncConnection _conn;
 
-    public const string GeneralCategoryName = "عمومی";
+    // نام عمومی در سیستم: «درهم»
+    public const string GeneralCategoryName = "درهم";
 
     public AppDatabase(string dbPath)
     {
@@ -22,6 +24,13 @@ public class AppDatabase
         await _conn.CreateTableAsync<GameConfig>();
         await _conn.CreateTableAsync<WordHistory>();
 
+        // مهاجرت های لازم
+        await Migrate_AddWordItemDifficultyAsync();
+        await Migrate_AddGameConfigSelectedDifficultyAsync();
+        await Migrate_RenameGeneralToMixedAsync();
+        // (اختیاری) اگر ستونی برای متن در تاریخچه داشته باشید
+        await Migrate_AddWordHistoryTextAsync();
+
         // 1) حداقل دسته‌بندی‌های پایه
         await EnsureBaseCategoriesAsync(new[]
         {
@@ -30,11 +39,55 @@ public class AppDatabase
 
         await EnsureGameConfigAsync();
 
-        // 2) سید پایه‌ی قبلی (اگر لازم داری نگه‌دار؛ اگر نه می‌تونی حذفش کنی)
-        // -- در صورت نیاز، همینجا AddWords(...) های قبلی‌ات می‌تونن باقی بمونن --
-
-        // 3) سید از JSON بزرگ (لیستی که فرستادی)
+        // 3) سید از JSON بزرگ (در صورت نیاز)
         await SeedFromJsonAsync(LargeSeedJson);
+    }
+
+    // ------------------------- Migrations -------------------------
+
+    private async Task Migrate_AddWordItemDifficultyAsync()
+    {
+        try
+        {
+            await _conn.ExecuteAsync("ALTER TABLE WordItem ADD COLUMN Difficulty INTEGER NOT NULL DEFAULT 1");
+        }
+        catch
+        {
+            // ستون وجود داشته باشد خطا می‌دهد؛ نادیده بگیر
+        }
+    }
+
+    private async Task Migrate_AddGameConfigSelectedDifficultyAsync()
+    {
+        try
+        {
+            // null = درهم
+            await _conn.ExecuteAsync("ALTER TABLE GameConfig ADD COLUMN SelectedDifficultyValue INTEGER NULL");
+        }
+        catch
+        {
+            // اگر ستون موجود باشد، نادیده بگیر
+        }
+    }
+
+    private async Task Migrate_RenameGeneralToMixedAsync()
+    {
+        try
+        {
+            // هر جا «عمومی» بوده → «درهم»
+            await _conn.ExecuteAsync("UPDATE Category SET Name = ? WHERE Name = ? OR Name LIKE ?", GeneralCategoryName, "عمومی", "%عمومی%");
+            await _conn.ExecuteAsync("UPDATE GameConfig SET CategoryName = ? WHERE CategoryName = ? OR CategoryName LIKE ?", GeneralCategoryName, "عمومی", "%عمومی%");
+        }
+        catch { /* ignore */ }
+    }
+
+    private async Task Migrate_AddWordHistoryTextAsync()
+    {
+        try
+        {
+            await _conn.ExecuteAsync("ALTER TABLE WordHistory ADD COLUMN WordText TEXT NULL");
+        }
+        catch { /* ignore if exists */ }
     }
 
     // ------------------------- Helpers -------------------------
@@ -72,10 +125,11 @@ public class AppDatabase
                 Players = 6,
                 Spies = 2,
                 Minutes = 3,
-                CategoryId = null, // یا ID دسته‌بندی عمومی
+                CategoryId = null,
                 CategoryName = GeneralCategoryName,
                 SecretWord = string.Empty,
                 SpyIndices = new List<int>(),
+                SelectedDifficulty = null, // درهم
                 CurrentPlayerIndex = 0
             };
             await _conn.InsertAsync(config);
@@ -109,12 +163,10 @@ public class AppDatabase
         }
         catch
         {
-            // اگر JSON مشکل داشت، بی‌سروصدا رد می‌شه تا اپ نپره
             return;
         }
         if (data == null || data.Count == 0) return;
 
-        // کش کلمات موجود برای حذف تکراری (Case-insensitive)
         var existingWords = new HashSet<string>(
             (await _conn.Table<WordItem>().ToListAsync()).Select(w => w.Text),
             StringComparer.InvariantCultureIgnoreCase
@@ -126,7 +178,6 @@ public class AppDatabase
         {
             if (string.IsNullOrWhiteSpace(categoryName) || diffMap == null) continue;
 
-            // اگر دسته نبود، بساز
             var catId = await EnsureCategoryAsync(categoryName);
 
             foreach (var (diffFa, words) in diffMap)
@@ -139,12 +190,8 @@ public class AppDatabase
                     var w = (raw ?? "").Trim();
                     if (w.Length == 0) continue;
 
-                    // حذف تکراری‌ها و آیتم‌های خیلی غیرعادی
                     if (existingWords.Contains(w)) continue;
-
-                    // نمونه فیلتر ساده برای نویزهای خیلی خارج از بازی (دلخواه)
-                    // می‌تونی این‌ها رو حذف کنی اگر همهٔ آیتم‌ها رو می‌خوای نگه داری.
-                    if (w.Length > 30) continue; // واژه‌های خیلی طولانیِ متنی
+                    if (w.Length > 30) continue;
 
                     toInsert.Add(new WordItem
                     {
@@ -161,49 +208,99 @@ public class AppDatabase
             await _conn.InsertAllAsync(toInsert);
     }
 
-    // ------------------------- Queries -------------------------
+    // ------------------------- Normalization -------------------------
+
+    private static string NormalizeKey(string? s)
+    {
+        s = (s ?? string.Empty).Trim();
+        // یکسان‌سازی یونیکدهای عربی/فارسی رایج
+        s = s.Replace('ي', 'ی').Replace('ك', 'ک').Replace("\u200c", ""); // حذف نیم‌فاصله
+        return s.ToLowerInvariant();
+    }
+
+    private sealed class TextRow { public string Text { get; set; } = string.Empty; }
+
+    private async Task<HashSet<string>> GetRecentWordKeysAsync(int take)
+    {
+        if (take <= 0) return new HashSet<string>();
+        var rows = await _conn.QueryAsync<TextRow>(
+            @"SELECT wi.Text AS Text
+              FROM WordHistory wh
+              INNER JOIN WordItem wi ON wi.Id = wh.WordItemId
+              ORDER BY wh.Id DESC
+              LIMIT ?", take);
+        return rows.Select(r => NormalizeKey(r.Text)).ToHashSet();
+    }
+
+    // ------------------------- Queries (با Difficulty + ضد تکرار متنی) -------------------------
 
     public Task<List<Category>> GetCategoriesAsync() =>
         _conn.Table<Category>().OrderBy(c => c.Name).ToListAsync();
 
-    public async Task<List<WordItem>> GetWordsByCategoryAsync(int categoryId)
+    public async Task<List<WordItem>> GetWordsByCategoryAsync(int categoryId, DifficultyLevel? difficulty = null, int recentWindow = 100)
     {
-        var history = (await _conn.Table<WordHistory>()
-        .OrderByDescending(x => x.Id)
-        .Take(100)
-        .ToListAsync())
-        .Select(x => x.WordItemId)
-        .ToHashSet();
+        var recentKeys = await GetRecentWordKeysAsync(recentWindow);
 
-        var words = await _conn.Table<WordItem>()
-        .Where(w => w.CategoryId == categoryId)
-        .OrderBy(w => w.Text)
-        .ToListAsync();
+        var query = _conn.Table<WordItem>()
+                         .Where(w => w.CategoryId == categoryId);
 
-        return words.Where(w => !history.Contains(w.Id)).ToList();
+        if (difficulty.HasValue)
+            query = query.Where(w => w.Difficulty == difficulty.Value);
+
+        var words = await query.ToListAsync();
+
+        // حذف تکراری‌های داخل دیتابیس و سپس فیلتر بر اساس 100 کلمه آخر (بر پایه متن نرمال‌شده)
+        var filtered = words
+            .GroupBy(w => NormalizeKey(w.Text))
+            .Where(g => !recentKeys.Contains(g.Key))
+            .Select(g => g.First())
+            .OrderBy(w => w.Text)
+            .ToList();
+
+        return filtered;
     }
-        
+
+    public async Task<List<WordItem>> GetAllWordsAsync(DifficultyLevel? difficulty = null, int recentWindow = 100)
+    {
+        var recentKeys = await GetRecentWordKeysAsync(recentWindow);
+
+        var query = _conn.Table<WordItem>();
+        if (difficulty.HasValue)
+            query = query.Where(w => w.Difficulty == difficulty.Value);
+
+        var words = await query.ToListAsync();
+
+        var filtered = words
+            .GroupBy(w => NormalizeKey(w.Text))
+            .Where(g => !recentKeys.Contains(g.Key))
+            .Select(g => g.First())
+            .OrderBy(w => w.Text)
+            .ToList();
+
+        return filtered;
+    }
+
+    // نسخه‌های بدون Difficulty برای سازگاری
+    public async Task<List<WordItem>> GetWordsByCategoryAsync(int categoryId)
+        => await GetWordsByCategoryAsync(categoryId, null, 100);
 
     public async Task<List<WordItem>> GetAllWordsAsync()
+        => await GetAllWordsAsync(null, 100);
+
+    // در صورت نیاز هنوز می‌توان به‌صورت ID هم گرفت
+    private async Task<HashSet<int>> GetRecentWordIdsAsync(int take)
     {
-        var history = (await _conn.Table<WordHistory>()
-        .OrderByDescending(x => x.Id)
-        .Take(100)
-        .ToListAsync())
-        .Select(x => x.WordItemId)
-        .ToHashSet();
-
-        var words = await _conn.Table<WordItem>()
-        .OrderBy(w => w.Text)
-        .ToListAsync();
-
-        return words.Where(w => !history.Contains(w.Id)).ToList();
+        if (take <= 0) return new HashSet<int>();
+        var history = await _conn.Table<WordHistory>()
+                                 .OrderByDescending(x => x.Id)
+                                 .Take(take)
+                                 .ToListAsync();
+        return history.Select(x => x.WordItemId).ToHashSet();
     }
 
     public Task<int> AddCategoryAsync(Category c) => _conn.InsertAsync(c);
     public Task<int> AddWordAsync(WordItem w) => _conn.InsertAsync(w);
-
-    public Task<int> AddWordHistoreAsync(WordHistory w) => _conn.InsertAsync(w);
+    public Task<int> AddWordHistoryAsync(WordHistory w) => _conn.InsertAsync(w);
 
     public Task<int> CountWordsInCategoryAsync(int categoryId) =>
         _conn.Table<WordItem>().Where(w => w.CategoryId == categoryId).CountAsync();
@@ -224,12 +321,19 @@ public class AppDatabase
             .FirstOrDefaultAsync();
     }
 
+    // 🔹 جدید: گرفتن آخرین N کانفیگ (برای محاسبه وزن‌ها)
+    public Task<List<GameConfig>> GetLastNConfigsAsync(int n)
+    {
+        return _conn.Table<GameConfig>()
+            .OrderByDescending(c => c.CreatedOn)
+            .Take(n)
+            .ToListAsync();
+    }
+
     public Task<int> AddGameConfigAsync(GameConfig g) => _conn.InsertAsync(g);
     public Task<int> UpdateGameConfigAsync(GameConfig g) => _conn.UpdateAsync(g);
 
 
-    // ------------------------- JSON بزرگت را اینجا بچسبان -------------------------
-    // حتماً کوتیشن‌های فارسی را با " تبدیل کن و فرمت JSON معتبر باشد.
     private const string LargeSeedJson = /* زبان: JSON */ @"
 {
   ""اماکن"": {
@@ -250,7 +354,7 @@ public class AppDatabase
   ""مفاهیم انتزاعی"": {
     ""آسان"": [ ""عشق"", ""دوستی"", ""شادی"", ""غم"", ""ترس"", ""امید"", ""آزادی"", ""عدالت"", ""صلح"", ""موفقیت"", ""وفاداری"", ""شجاعت"", ""صداقت"", ""اعتماد"", ""خلاقیت"", ""مسئولیت"", ""همدلی"", ""انگیزه"" ],
     ""متوسط"": [ ""پارادوکس"", ""بی‌نهایت"", ""هستی‌شناسی"", ""معرفت‌شناسی"", ""آنتروپی"", ""دیالکتیک"", ""پوچ‌گرایی"", ""خودآگاهی"" ],
-    ""سخت"":   [ ""اکسیمورون"", ""اپوستریوری"", ""اتوپوئیسیس"", ""اپیستمولوژی"" ]
+    ""سخت"":   [ ""گسل تکتونیکی"", ""سنگ آذرین"", ""اکوسیستم"", ""چرخه نیتروژن"", ""زیست‌کره"" ]
   },
   ""طبیعت"": {
     ""آسان"": [ ""درخت"", ""گل"", ""رودخانه"", ""کوه"", ""دریا"", ""جنگل"", ""خورشید"", ""ماه"", ""ابر"", ""باد"", ""آبشار"", ""چشمه"", ""ساحل"" ],

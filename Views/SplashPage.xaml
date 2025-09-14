@@ -3,22 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SpyGame.Views.SplashPage"
              Shell.NavBarIsVisible="False"
-             FlowDirection="RightToLeft"
-             BackgroundColor="{DynamicResource ColorBackground}">
+             FlowDirection="RightToLeft">
+
     <Grid>
-        <VerticalStackLayout Spacing="12"
-                             Padding="32"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center">
-            <Image Source="logo.png"
-                   WidthRequest="160"
-                   HeightRequest="160"
-                   HorizontalOptions="Center"
-                   Aspect="AspectFit" />
-            <Label Text="Spy Game"
-                   FontSize="24"
-                   HorizontalOptions="Center"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
-        </VerticalStackLayout>
+        <Border x:Name="Card" Style="{StaticResource Card}">
+            <VerticalStackLayout Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+
+                <Image x:Name="Logo"
+                       Source="logo.png"
+                       WidthRequest="160"
+                       HeightRequest="160"
+                       HorizontalOptions="Center"
+                       Aspect="AspectFit" />
+
+                <Label Text="Spy Game"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center" />
+
+                <ActivityIndicator x:Name="Spinner"
+                                   IsRunning="True"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Border>
     </Grid>
 </ContentPage>

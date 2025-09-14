@@ -6,7 +6,7 @@ public partial class App : Application
     {
         InitializeComponent();
         // تبعیت از تم سیستم
-        UserAppTheme = AppTheme.Unspecified;
+        UserAppTheme = AppTheme.Dark;
         MainPage = new AppShell(); // یا NavigationPage(...)
     }
 }

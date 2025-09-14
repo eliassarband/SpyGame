@@ -31,11 +31,18 @@ public partial class TimerPage : ContentPage
     }
 
     //// سازندهٔ بدون پارامتر برای Shell (از DI می‌گیرد)
-    //public TimerPage() : this(App.Current.Services.GetRequiredService<AppDatabase>()) { }
+    // public TimerPage() : this(App.Current.Services.GetRequiredService<AppDatabase>()) { }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // انیمیشن لطیف کارت
+        if (Card != null)
+        {
+            Card.Opacity = 0;
+            Card.Scale = 0.98;
+        }
 
         // مخفی کردن فلش Back (اضافی در کنار XAML)
         Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false, IsEnabled = false });
@@ -55,21 +62,25 @@ public partial class TimerPage : ContentPage
         {
             var stream = await FileSystem.OpenAppPackageFileAsync("beep_end.wav");
             _endBeep = AudioManager.Current.CreatePlayer(stream);
-
         }
-        catch { 
-            _endBeep = null;
-        }
+        catch { _endBeep = null; }
 
         try
         {
             var streamS = await FileSystem.OpenAppPackageFileAsync("beep_short.wav");
             _shortBeep = AudioManager.Current.CreatePlayer(streamS);
         }
-        catch
+        catch { _shortBeep = null; }
+
+        if (Card != null)
         {
-            _shortBeep = null;
+            await Task.WhenAll(
+                Card.FadeTo(1, 240, Easing.CubicOut),
+                Card.ScaleTo(1, 260, Easing.CubicOut)
+            );
         }
+
+        Start();
     }
 
     protected override void OnDisappearing()
@@ -109,6 +120,7 @@ public partial class TimerPage : ContentPage
         if (config != null)
             _remaining = TimeSpan.FromMinutes(config.Minutes);
         UpdateLabel();
+        WarningLabel.Text = "";
     }
 
     private async void OnFinish(object sender, EventArgs e)
@@ -167,6 +179,7 @@ public partial class TimerPage : ContentPage
                 _remaining = _remaining.Add(TimeSpan.FromSeconds(-1));
                 UpdateLabel();
 
+                // هشدارها + ویبره/بوق
                 if (_remaining.TotalSeconds <= 60 && _remaining.TotalSeconds >= 58)
                 {
                     try { Vibration.Vibrate(TimeSpan.FromMilliseconds(100)); } catch { }
@@ -198,7 +211,6 @@ public partial class TimerPage : ContentPage
                 WarningLabel.Text = "";
                 _ = OnTimeFinished();
             }
-
         });
     }
 

@@ -3,42 +3,105 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SpyGame.Views.SetupPage"
              Title="تنظیمات بازی"
-             FlowDirection="RightToLeft"
-             BackgroundColor="{DynamicResource ColorBackground}">
-    <ScrollView>
-        <VerticalStackLayout Spacing="16" Padding="20">
+             FlowDirection="RightToLeft">
 
-            <Label Text="دسته‌بندی"
-                   FontSize="16"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
-            <Picker x:Name="CategoryPicker" FontSize="Large"
-                    ItemDisplayBinding="{Binding Name}" />
+    <Grid>
+        <!-- کارت مرکزی بدون Scroll -->
+        <Border x:Name="Card" Style="{StaticResource Card}">
+            <!-- چیدمان فشرده و دو ستونه برای جلوگیری از افزایش ارتفاع -->
+            <Grid ColumnSpacing="12" RowSpacing="12" Padding="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Title -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Category -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Difficulty -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Players -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Spies -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Minutes -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Button -->
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <Label Text="تعداد بازیکن"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
-            <Stepper x:Name="PlayersStepper"
-                     Minimum="3" Maximum="20" Increment="1" Value="6" />
-            <Label x:Name="PlayersLabel"
-                   Text="6" HorizontalOptions="End" FontSize="Large"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
+                <!-- Title -->
+                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="تنظیمات بازی"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,8"/>
 
-            <Label Text="تعداد جاسوس"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
-            <Stepper x:Name="SpiesStepper"
-                     Minimum="1" Maximum="10" Increment="1" Value="2" />
-            <Label x:Name="SpiesLabel"
-                   Text="2" HorizontalOptions="End" FontSize="Large"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
+                <!-- دسته‌بندی -->
+                <Label Grid.Row="1" Grid.Column="0"
+                       Text="دسته‌بندی" Style="{StaticResource BodyDim}"
+                       VerticalTextAlignment="Center" />
+                <Picker Grid.Row="1" Grid.Column="1"
+                        x:Name="CategoryPicker"
+                        FontSize="Medium"
+                        ItemDisplayBinding="{Binding Name}" />
 
-            <Label Text="زمان (دقیقه)"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
-            <Stepper x:Name="MinutesStepper"
-                     Minimum="1" Maximum="20" Increment="1" Value="5" />
-            <Label x:Name="MinutesLabel"
-                   Text="5" HorizontalOptions="End" FontSize="Large"
-                   TextColor="{DynamicResource ColorTextPrimary}" />
+                <!-- درجه سختی -->
+                <Label Grid.Row="2" Grid.Column="0"
+                       Text="درجه سختی" Style="{StaticResource BodyDim}"
+                       VerticalTextAlignment="Center" />
+                <Picker Grid.Row="2" Grid.Column="1"
+                        x:Name="DifficultyPicker"
+                        FontSize="Medium" />
 
-            <Button Text="شروع بازی" Clicked="OnStartClicked" FontSize="Large" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- تعداد بازیکن -->
+                <Label Grid.Row="3" Grid.Column="0"
+                       Text="تعداد بازیکن" Style="{StaticResource BodyDim}"
+                       VerticalTextAlignment="Center" />
+                <HorizontalStackLayout Grid.Row="3" Grid.Column="1" Spacing="8">
+                    <Stepper x:Name="PlayersStepper"
+                             Minimum="3" Maximum="20" Increment="1" Value="6" />
+                    <Label x:Name="PlayersLabel"
+                           Text="6"
+                           FontSize="Medium"
+                           VerticalTextAlignment="Center" />
+                </HorizontalStackLayout>
+
+                <!-- تعداد جاسوس -->
+                <Label Grid.Row="4" Grid.Column="0"
+                       Text="تعداد جاسوس" Style="{StaticResource BodyDim}"
+                       VerticalTextAlignment="Center" />
+                <HorizontalStackLayout Grid.Row="4" Grid.Column="1" Spacing="8">
+                    <Stepper x:Name="SpiesStepper"
+                             Minimum="1" Maximum="10" Increment="1" Value="2" />
+                    <Label x:Name="SpiesLabel"
+                           Text="2"
+                           FontSize="Medium"
+                           VerticalTextAlignment="Center" />
+                </HorizontalStackLayout>
+
+                <!-- زمان (دقیقه) -->
+                <Label Grid.Row="5" Grid.Column="0"
+                       Text="زمان (دقیقه)" Style="{StaticResource BodyDim}"
+                       VerticalTextAlignment="Center" />
+                <HorizontalStackLayout Grid.Row="5" Grid.Column="1" Spacing="8">
+                    <Stepper x:Name="MinutesStepper"
+                             Minimum="1" Maximum="20" Increment="1" Value="5" />
+                    <Label x:Name="MinutesLabel"
+                           Text="5"
+                           FontSize="Medium"
+                           VerticalTextAlignment="Center" />
+                </HorizontalStackLayout>
+
+                <!-- شروع -->
+                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                        Text="شروع بازی"
+                        Style="{StaticResource SetupPrimaryButton}"
+                        FontSize="Medium"
+                        Clicked="OnStartClicked"
+                        Margin="0,4,0,0"/>
+            </Grid>
+        </Border>
+    </Grid>
 </ContentPage>

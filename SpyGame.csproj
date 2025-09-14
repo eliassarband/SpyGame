@@ -15,7 +15,7 @@
     <ApplicationTitle>Spy</ApplicationTitle>
 
     <!-- App Identifier -->
-    <ApplicationId>com.companyname.spygame</ApplicationId>
+    <ApplicationId>com.elias.spygame</ApplicationId>
 
     <!-- Versions -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -56,7 +56,7 @@
     <PackageReference Include="Plugin.Maui.Audio" Version="3.1.1" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
-    <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="3.0.1" />
+    <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="3.0.2" />
   </ItemGroup>
 
   <ItemGroup>

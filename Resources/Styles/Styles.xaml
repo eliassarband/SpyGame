@@ -25,8 +25,14 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
-    <Style TargetType="Button">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+    <!-- =======================
+         Button Styles (Refactor)
+         ======================= -->
+
+    <!-- استایل پایهٔ دکمه‌ها: برای ارجاع در BasedOn -->
+    <Style x:Key="BaseButton" TargetType="Button">
+        <!-- رنگ متن در دارک: سفید -->
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="14"/>
@@ -50,6 +56,9 @@
             </VisualStateGroupList>
         </Setter>
     </Style>
+
+    <!-- استایل ضمنی برای همهٔ Button‌ها (برای سازگاری با قبل) -->
+    <Style TargetType="Button" BasedOn="{StaticResource BaseButton}" />
 
     <Style TargetType="CheckBox">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
@@ -425,6 +434,110 @@
         <Setter Property="BarTextColor" Value="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource White}}" />
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+    </Style>
+
+    <!-- کارت تیره با سایهٔ ملایم و گوشه‌گرد -->
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="Background"
+                Value="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="Margin" Value="24" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="MaximumWidthRequest" Value="640" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Opacity="0.35" Radius="20" Offset="0,10" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="22" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- تیتر و متن داخل کارت -->
+    <Style x:Key="TitleLarge" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+    </Style>
+
+    <Style x:Key="BodyDim" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+    </Style>
+
+    <!-- دکمهٔ گرد بزرگ استاندارد -->
+    <Style x:Key="CircularActionButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="WidthRequest">
+            <Setter.Value>
+                <OnIdiom x:TypeArguments="x:Double">
+                    <OnIdiom.Phone>200</OnIdiom.Phone>
+                    <OnIdiom.Tablet>300</OnIdiom.Tablet>
+                </OnIdiom>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HeightRequest">
+            <Setter.Value>
+                <OnIdiom x:TypeArguments="x:Double">
+                    <OnIdiom.Phone>200</OnIdiom.Phone>
+                    <OnIdiom.Tablet>300</OnIdiom.Tablet>
+                </OnIdiom>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="CornerRadius">
+            <Setter.Value>
+                <OnIdiom x:TypeArguments="x:Int32">
+                    <OnIdiom.Phone>100</OnIdiom.Phone>
+                    <OnIdiom.Tablet>150</OnIdiom.Tablet>
+                </OnIdiom>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- رنگ‌های اختصاصی دکمه‌ها (Setup / Reveal / Timer) -->
+    <Style x:Key="SetupPrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <!-- Blue Grey -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#546E7A, Dark=#546E7A}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="RevealPrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <!-- Deep Orange -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF3D00, Dark=#FF6D00}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <!-- دکمهٔ گرد ویژهٔ Reveal (ترکیب گرد + رنگ خشن) -->
+    <Style x:Key="CircularRevealButton" TargetType="Button" BasedOn="{StaticResource CircularActionButton}">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF3D00, Dark=#FF6D00}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="TimerPrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <!-- Cyan -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#00ACC1, Dark=#00838F}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="TimerSecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <!-- Blue Grey Dark -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#455A64, Dark=#37474F}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="TimerDangerButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <!-- Red (برای پایان/بازگشت) -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#E53935, Dark=#D32F2F}" />
+        <Setter Property="TextColor" Value="White" />
     </Style>
 
 </ResourceDictionary>

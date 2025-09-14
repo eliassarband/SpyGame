@@ -11,44 +11,101 @@
         <BackButtonBehavior IsVisible="False" IsEnabled="False" />
     </Shell.BackButtonBehavior>
 
-    <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
-        <!-- اطلاعات بازی -->
-        <HorizontalStackLayout Spacing="24" HorizontalOptions="Center">
-            <Label x:Name="PlayersInfoLabel"
-                   FontSize="16"
-                   TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
-            <Label x:Name="SpiesInfoLabel"
-                   FontSize="16"
-                   TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
-        </HorizontalStackLayout>
+    <Grid>
+        <!-- کارت کمی عریض‌تر و دکمه‌ها پایین کارت -->
+        <Border x:Name="Card"
+                Style="{StaticResource Card}"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                MinimumWidthRequest="340"
+                MaximumWidthRequest="760">
+            <Border.WidthRequest>
+                <OnIdiom x:TypeArguments="x:Double">
+                    <OnIdiom.Phone>390</OnIdiom.Phone>
+                    <OnIdiom.Tablet>580</OnIdiom.Tablet>
+                </OnIdiom>
+            </Border.WidthRequest>
 
-        <!-- تایمر -->
-        <Label x:Name="TimerLabel"
-               FontSize="72"
-               FontAttributes="Bold"
-               HorizontalTextAlignment="Center"
-               VerticalTextAlignment="Center"
-               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
-        <!-- توضیح -->
-        <Label x:Name="WarningLabel"
-           FontSize="36"
-           HorizontalTextAlignment="Center"
-           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-        
-        <!-- توضیح -->
-        <Label x:Name="WordHintLabel"
-               FontSize="18"
-               HorizontalTextAlignment="Center"
-               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+            <Grid RowSpacing="12" Padding="8,8,8,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- info -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- timer -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- warning -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- hint -->
+                    <RowDefinition Height="*"/>
+                    <!-- spacer: push controls to bottom -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- start/pause -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- reset/finish -->
+                </Grid.RowDefinitions>
 
-        <!-- کنترل‌ها -->
-        <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-            <Button Text="شروع / مکث" Clicked="OnStartPause" FontSize="Large"/>
-        </HorizontalStackLayout>
+                <!-- اطلاعات بازی -->
+                <HorizontalStackLayout Grid.Row="0" Spacing="16" HorizontalOptions="Center">
+                    <Label x:Name="PlayersInfoLabel"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+                    <Label x:Name="SpiesInfoLabel"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+                </HorizontalStackLayout>
 
-        <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-            <Button Text="ریست" Clicked="OnReset"/>
-            <Button Text="اتمام بازی" Clicked="OnFinish"/>
-        </HorizontalStackLayout>
-    </VerticalStackLayout>
+                <!-- تایمر -->
+                <Label x:Name="TimerLabel"
+                       Grid.Row="1"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       FontAttributes="Bold"
+                       LineBreakMode="NoWrap"
+                       Margin="0,4,0,0">
+                    <Label.FontSize>
+                        <OnIdiom x:TypeArguments="x:Double">
+                            <OnIdiom.Phone>56</OnIdiom.Phone>
+                            <OnIdiom.Tablet>84</OnIdiom.Tablet>
+                        </OnIdiom>
+                    </Label.FontSize>
+                </Label>
+
+                <!-- هشدار -->
+                <Label x:Name="WarningLabel"
+                       Grid.Row="2"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}">
+                    <Label.FontSize>
+                        <OnIdiom x:TypeArguments="x:Double">
+                            <OnIdiom.Phone>20</OnIdiom.Phone>
+                            <OnIdiom.Tablet>24</OnIdiom.Tablet>
+                        </OnIdiom>
+                    </Label.FontSize>
+                </Label>
+
+                <!-- توضیح/راهنما -->
+                <Label x:Name="WordHintLabel"
+                       Grid.Row="3"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                       FontSize="14" />
+
+                <!-- spacer (ردیف 4) -->
+
+                <!-- کنترل‌ها: پایین کارت -->
+                <HorizontalStackLayout Grid.Row="5" Spacing="12" HorizontalOptions="Center">
+                    <Button Text="شروع / مکث"
+                            Style="{StaticResource TimerPrimaryButton}"
+                            FontSize="Medium"
+                            Clicked="OnStartPause"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Row="6" Spacing="12" HorizontalOptions="Center" Margin="0,0,0,2">
+                    <Button Text="ریست" Style="{StaticResource TimerSecondaryButton}" Clicked="OnReset"/>
+                    <Button Text="اتمام بازی" Style="{StaticResource TimerDangerButton}" Clicked="OnFinish"/>
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+    </Grid>
 </ContentPage>
