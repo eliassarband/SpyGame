@@ -8,7 +8,7 @@
     <Grid>
         <!-- کارت مرکزی بدون Scroll -->
         <Border x:Name="Card" Style="{StaticResource Card}">
-            <!-- چیدمان فشرده و دو ستونه برای جلوگیری از افزایش ارتفاع -->
+            <!-- چیدمان فشرده و دو ستونه -->
             <Grid ColumnSpacing="12" RowSpacing="12" Padding="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -18,13 +18,17 @@
                     <RowDefinition Height="Auto"/>
                     <!-- Difficulty -->
                     <RowDefinition Height="Auto"/>
+                    <!-- Word counts -->
+                    <RowDefinition Height="Auto"/>
                     <!-- Players -->
                     <RowDefinition Height="Auto"/>
                     <!-- Spies -->
                     <RowDefinition Height="Auto"/>
                     <!-- Minutes -->
                     <RowDefinition Height="Auto"/>
-                    <!-- Button -->
+                    <!-- Start -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- History -->
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -55,11 +59,19 @@
                         x:Name="DifficultyPicker"
                         FontSize="Medium" />
 
+                <!-- Word counts -->
+                <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                       x:Name="WordCountLabel"
+                       Text="کلمات: کل 0 / قابل انتخاب 0"
+                       Style="{StaticResource BodyDim}"
+                       HorizontalOptions="Center"
+                       Margin="0,2,0,2" />
+
                 <!-- تعداد بازیکن -->
-                <Label Grid.Row="3" Grid.Column="0"
+                <Label Grid.Row="4" Grid.Column="0"
                        Text="تعداد بازیکن" Style="{StaticResource BodyDim}"
                        VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="3" Grid.Column="1" Spacing="8">
+                <HorizontalStackLayout Grid.Row="4" Grid.Column="1" Spacing="8">
                     <Stepper x:Name="PlayersStepper"
                              Minimum="3" Maximum="20" Increment="1" Value="6" />
                     <Label x:Name="PlayersLabel"
@@ -69,10 +81,10 @@
                 </HorizontalStackLayout>
 
                 <!-- تعداد جاسوس -->
-                <Label Grid.Row="4" Grid.Column="0"
+                <Label Grid.Row="5" Grid.Column="0"
                        Text="تعداد جاسوس" Style="{StaticResource BodyDim}"
                        VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="4" Grid.Column="1" Spacing="8">
+                <HorizontalStackLayout Grid.Row="5" Grid.Column="1" Spacing="8">
                     <Stepper x:Name="SpiesStepper"
                              Minimum="1" Maximum="10" Increment="1" Value="2" />
                     <Label x:Name="SpiesLabel"
@@ -82,10 +94,10 @@
                 </HorizontalStackLayout>
 
                 <!-- زمان (دقیقه) -->
-                <Label Grid.Row="5" Grid.Column="0"
+                <Label Grid.Row="6" Grid.Column="0"
                        Text="زمان (دقیقه)" Style="{StaticResource BodyDim}"
                        VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="5" Grid.Column="1" Spacing="8">
+                <HorizontalStackLayout Grid.Row="6" Grid.Column="1" Spacing="8">
                     <Stepper x:Name="MinutesStepper"
                              Minimum="1" Maximum="20" Increment="1" Value="5" />
                     <Label x:Name="MinutesLabel"
@@ -95,12 +107,19 @@
                 </HorizontalStackLayout>
 
                 <!-- شروع -->
-                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
                         Text="شروع بازی"
                         Style="{StaticResource SetupPrimaryButton}"
                         FontSize="Medium"
                         Clicked="OnStartClicked"
                         Margin="0,4,0,0"/>
+
+                <!-- نمایش تاریخچه ۵۰۰ کلمهٔ آخر -->
+                <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+                        Text="نمایش تاریخچه ۵۰۰ کلمهٔ آخر"
+                        FontSize="Medium"
+                        Clicked="OnShowHistoryClicked"
+                        Margin="0,0,0,4"/>
             </Grid>
         </Border>
     </Grid>

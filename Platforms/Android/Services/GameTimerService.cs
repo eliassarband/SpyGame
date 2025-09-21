@@ -1,13 +1,12 @@
 ﻿#if ANDROID
 using Android.App;
 using Android.Content;
-using Android.Content.PM;          // ⬅️ برای ForegroundService.TypeMediaPlayback
+using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
 using Plugin.Maui.Audio;
 using System;
-using System.Timers;              // ⬅️ Timer از اینجا
-
+using System.Timers;
 using NotificationCompat = AndroidX.Core.App.NotificationCompat;
 
 namespace SpyGame.Platforms.Android.Services
@@ -71,7 +70,7 @@ namespace SpyGame.Platforms.Android.Services
             _timer?.Stop();
             _timer?.Dispose();
 
-            _timer = new System.Timers.Timer(1000);   // ⬅️ 1000 میلی‌ثانیه، نه TimeSpan
+            _timer = new System.Timers.Timer(1000);
             _timer.AutoReset = true;
             _timer.Elapsed += (_, __) =>
             {
@@ -109,10 +108,10 @@ namespace SpyGame.Platforms.Android.Services
             var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetContentTitle("تایمر بازی جاسوس")
                 .SetContentText($"زمان باقی‌مانده: {time}")
-                .SetSmallIcon(Resource.Drawable.ic_stat_name)   // ⬅️ حتماً این آیکن را در drawable بگذار
+                .SetSmallIcon(Resource.Drawable.ic_stat_name)   // ← مرحله بعد این آیکن را می‌سازیم
                 .SetOngoing(true)
                 .AddAction(new NotificationCompat.Action(0, "توقف", stopPending))
-                .SetVisibility((int)NotificationVisibility.Public)
+                .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetOnlyAlertOnce(true);
 
             return builder.Build();

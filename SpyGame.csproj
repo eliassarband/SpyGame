@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- پلتفرم‌ها -->
     <TargetFrameworks>net8.0-ios;net8.0-maccatalyst;net8.0-android34.0</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 
@@ -11,41 +12,68 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <!-- نام اپ روی لانچر/استور -->
+    <!-- نام اپ -->
     <ApplicationTitle>Spy</ApplicationTitle>
 
-    <!-- App Identifier -->
+    <!-- شناسه‌ی بسته (Android Package Name) -->
     <ApplicationId>com.elias.spygame</ApplicationId>
 
-    <!-- Versions -->
+    <!-- نسخه‌ها -->
+    <!-- DisplayVersion ~ VersionName (مثلاً 1.0.3) -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <!-- VersionCode (عددی و افزایشی) -->
     <ApplicationVersion>1</ApplicationVersion>
 
+    <!-- حداقل پلتفرم‌های پشتیبانی‌شده -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
+
+    <!-- برای اندروید: API 27 ~ Android 8.1 -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">27.0</SupportedOSPlatformVersion>
+
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
-  <!-- آیکن اپ: از همین PNG همه سایزها ساخته می‌شود -->
+  <!-- تنظیمات ویژه‌ی Release اندروید -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <!-- برای پخش بین دوستان: apk. برای پلی‌استور بعداً بگذار aab -->
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+
+    <!-- بهینه‌های Release -->
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+
+    <!-- معماری‌ها (ABI) -->
+    <AndroidSupportedAbis>armeabi-v7a;arm64-v8a</AndroidSupportedAbis>
+
+    <!-- اگر keystore داری، این‌ها را آنکامنت و مقداردهی کن -->
+    <!--
+    <AndroidKeyStore>true</AndroidKeyStore>
+    <AndroidSigningKeyStore>spy-release.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyAlias>spykey</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>***</AndroidSigningKeyPass>
+    <AndroidSigningStorePass>***</AndroidSigningStorePass>
+    -->
+  </PropertyGroup>
+
+  <!-- آیکن -->
   <ItemGroup>
     <MauiIcon Include="Resources\AppIcon\appicon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Splash Screen: از لوگوی خودت استفاده کن -->
-    <!-- Color = رنگ پس‌زمینهٔ اسپلش (اندروید 12+ هم همین رو می‌گیره). -->
+    <!-- Splash -->
     <MauiSplashScreen Include="Resources\Splash\logo.png" Color="#121212" BaseSize="256,256" />
 
-    <!-- Images -->
+    <!-- تصاویر -->
     <MauiImage Include="Resources\Images\*" />
     <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
-    <!-- Fonts -->
+    <!-- فونت‌ها -->
     <MauiFont Include="Resources\Fonts\*" />
 
-    <!-- Raw assets (صوت‌ها و …) -->
+    <!-- دارایی‌های خام (صوت و …) -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
@@ -75,7 +103,6 @@
   </ItemGroup>
 
   <!-- اختیاری: فقط برای Windows اگر آیکن پنجره می‌خواهی -->
-  <!-- یک فایل ICO بساز و بذار این مسیر، بعد این PropertyGroup رو uncomment کن -->
   <!--
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">
     <ApplicationIcon>Platforms\Windows\appicon.ico</ApplicationIcon>

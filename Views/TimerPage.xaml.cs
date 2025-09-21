@@ -1,6 +1,7 @@
 ﻿#if ANDROID
 using Android;
 using Android.Content;
+using Android.OS;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using SpyGame.Platforms.Android.Services;
@@ -30,21 +31,16 @@ public partial class TimerPage : ContentPage
         _db = db;
     }
 
-    //// سازندهٔ بدون پارامتر برای Shell (از DI می‌گیرد)
-    // public TimerPage() : this(App.Current.Services.GetRequiredService<AppDatabase>()) { }
-
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        // انیمیشن لطیف کارت
         if (Card != null)
         {
             Card.Opacity = 0;
             Card.Scale = 0.98;
         }
 
-        // مخفی کردن فلش Back (اضافی در کنار XAML)
         Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false, IsEnabled = false });
 
         var config = await _db.GetLastConfigAsync();
@@ -86,6 +82,13 @@ public partial class TimerPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+
+        // تایمر و سرویس را متوقف کن تا نشت نداشته باشیم
+        Pause();
+
+        try { _timer?.Dispose(); } catch { }
+        _timer = null;
+
         try { _endBeep?.Dispose(); } catch { }
         _endBeep = null;
 
@@ -103,7 +106,10 @@ public partial class TimerPage : ContentPage
 
     private void OnStartPause(object sender, EventArgs e)
     {
-        if (_running) Pause();
+        if (_running)
+        {
+            Pause();
+        }
         else
         {
 #if ANDROID
@@ -126,7 +132,7 @@ public partial class TimerPage : ContentPage
     private async void OnFinish(object sender, EventArgs e)
     {
         Pause();
-        await Shell.Current.GoToAsync($"{nameof(SetupPage)}"); // Root nav
+        await Shell.Current.GoToAsync($"{nameof(SetupPage)}");
     }
 
     private void Start()
@@ -135,38 +141,30 @@ public partial class TimerPage : ContentPage
         _running = true;
 
         _timer ??= new System.Timers.Timer(1000);
-        _timer.Elapsed -= OnTick;
-        _timer.Elapsed += OnTick;
         _timer.AutoReset = true;
+        _timer.Elapsed -= OnTick;   // اطمینان از عدم دوبار سابسکرایب
+        _timer.Elapsed += OnTick;
         _timer.Start();
 
 #if ANDROID
-        try
-        {
-            var ctx = Android.App.Application.Context;
-            var intent = new Intent(ctx, typeof(GameTimerService));
-            intent.SetAction(GameTimerService.ACTION_START);
-            intent.PutExtra(GameTimerService.EXTRA_SECONDS, (int)_remaining.TotalSeconds);
-            ctx.StartForegroundService(intent);
-        }
-        catch { }
+        StartTimerForegroundService((int)_remaining.TotalSeconds);
 #endif
     }
 
     private void Pause()
     {
+        if (!_running && _timer == null) return;
+
         _running = false;
-        _timer?.Stop();
+
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Elapsed -= OnTick;   // عدم نشت هندلر
+        }
 
 #if ANDROID
-        try
-        {
-            var ctx = Android.App.Application.Context;
-            var stopIntent = new Intent(ctx, typeof(GameTimerService));
-            stopIntent.SetAction(GameTimerService.ACTION_STOP);
-            ctx.StartService(stopIntent);
-        }
-        catch { }
+        StopTimerForegroundService();
 #endif
     }
 
@@ -220,7 +218,7 @@ public partial class TimerPage : ContentPage
         try { _endBeep?.Play(); } catch { }
 
         await DisplayAlert("پایان زمان", "زمان بازی به پایان رسید.", "باشه");
-        await Shell.Current.GoToAsync($"{nameof(SetupPage)}"); // Root nav
+        await Shell.Current.GoToAsync($"{nameof(SetupPage)}");
     }
 
 #if ANDROID
@@ -238,6 +236,36 @@ public partial class TimerPage : ContentPage
                         new string[] { Manifest.Permission.PostNotifications }, requestCode: 1001);
                 }
             }
+        }
+        catch { }
+    }
+
+    private static void StartTimerForegroundService(int seconds)
+    {
+        try
+        {
+            var ctx = Android.App.Application.Context;
+            var intent = new Intent(ctx, typeof(GameTimerService));
+            intent.SetAction(GameTimerService.ACTION_START);
+            intent.PutExtra(GameTimerService.EXTRA_SECONDS, seconds);
+
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
+                ctx.StartForegroundService(intent);
+            else
+                ctx.StartService(intent);
+        }
+        catch { }
+    }
+
+    private static void StopTimerForegroundService()
+    {
+        try
+        {
+            var ctx = Android.App.Application.Context;
+            var stopIntent = new Intent(ctx, typeof(GameTimerService));
+            stopIntent.SetAction(GameTimerService.ACTION_STOP);
+            // برای استاپ، StartService کفایت می‌کند (سرویس خودش StopSelf می‌زند)
+            ctx.StartService(stopIntent);
         }
         catch { }
     }

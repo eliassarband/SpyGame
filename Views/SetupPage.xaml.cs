@@ -19,6 +19,10 @@ public partial class SetupPage : ContentPage
         PlayersStepper.ValueChanged += (_, __) => PlayersLabel.Text = ((int)PlayersStepper.Value).ToString();
         SpiesStepper.ValueChanged += (_, __) => SpiesLabel.Text = ((int)SpiesStepper.Value).ToString();
         MinutesStepper.ValueChanged += (_, __) => MinutesLabel.Text = ((int)MinutesStepper.Value).ToString();
+
+        // تغییر دسته/سختی → بروزرسانی شمارنده‌ها
+        CategoryPicker.SelectedIndexChanged += async (_, __) => await UpdateWordCountsAsync();
+        DifficultyPicker.SelectedIndexChanged += async (_, __) => await UpdateWordCountsAsync();
     }
 
     protected override async void OnAppearing()
@@ -84,6 +88,43 @@ public partial class SetupPage : ContentPage
         PlayersLabel.Text = ((int)PlayersStepper.Value).ToString();
         SpiesLabel.Text = ((int)SpiesStepper.Value).ToString();
         MinutesLabel.Text = ((int)MinutesStepper.Value).ToString();
+
+        // شمارنده‌ی کلمات
+        await UpdateWordCountsAsync();
+    }
+
+    private async Task UpdateWordCountsAsync()
+    {
+        if (_db is null) return;
+
+        // کل کلمات DB
+        int total = await _db.GetWordCountAsync();
+
+        // تعداد «قابل انتخاب» با توجه به انتخاب‌های فعلی + حذف ۵۰۰ کلمه‌ی آخر
+        var selectedCategory = CategoryPicker.SelectedItem as Category;
+        var selectedDifficultyFa = (DifficultyPicker.SelectedItem as string) ?? "درهم";
+        DifficultyLevel? diff = FromFa(selectedDifficultyFa);
+
+        List<WordItem> pool;
+        if (selectedCategory != null && selectedCategory.Name != "درهم")
+        {
+            pool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 500);
+            if (pool.Count == 0)
+            {
+                // اگر همه در ۵۰۰ تای اخیر بودند، برای اطلاع بهتر عدد، بدون محدودیت هم می‌گیریم
+                pool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 0);
+            }
+        }
+        else
+        {
+            pool = await _db.GetAllWordsAsync(diff, 500);
+            if (pool.Count == 0)
+            {
+                pool = await _db.GetAllWordsAsync(diff, 0);
+            }
+        }
+
+        WordCountLabel.Text = $"کلمات: کل {total:N0} / قابل انتخاب {pool.Count:N0}";
     }
 
     private async void OnStartClicked(object sender, EventArgs e)
@@ -125,23 +166,22 @@ public partial class SetupPage : ContentPage
             return;
         }
 
-        // انتخاب کلمه با فیلتر Difficulty از DB + جلوگیری از تکرار 100 کلمه آخر (بر پایه متن کلمه)
+        // انتخاب کلمه با فیلتر Difficulty + جلوگیری از تکرار ۵۰۰ کلمه‌ی آخر
         List<WordItem> wordPool;
         if (selectedCategory != null && selectedCategory.Name != "درهم")
         {
-            wordPool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 100);
+            wordPool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 500);
             if (wordPool.Count == 0)
             {
-                // تمام کلمات دسته در 100 تای اخیر مصرف شده‌اند → بدون محدودیت تاریخچه (fallback)
+                // اگر همه مصرف شده‌اند → بدون محدودیت تاریخچه (fallback)
                 wordPool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 0);
             }
         }
         else
         {
-            wordPool = await _db.GetAllWordsAsync(diff, 100);
+            wordPool = await _db.GetAllWordsAsync(diff, 500);
             if (wordPool.Count == 0)
             {
-                // تمام کلمات در 100 تای اخیر مصرف شده‌اند → بدون محدودیت تاریخچه (fallback)
                 wordPool = await _db.GetAllWordsAsync(diff, 0);
             }
         }
@@ -156,22 +196,20 @@ public partial class SetupPage : ContentPage
         var word = wordPool[rand.Next(wordPool.Count)];
         var secret = word.Text;
 
-        // ثبت در تاریخچه برای جلوگیری از تکرار در دورهای بعدی
+        // ثبت در تاریخچه
         await _db.AddWordHistoryAsync(new WordHistory { WordItemId = word.Id });
 
         // ---------- انتخاب جاسوس‌ها با قانون پنجره‌ای ----------
-        // اگر بازیکنان ≥ 7 → پنجره 5 دور آخر (شامل همین دور)،
-        // در غیر این صورت → پنجره 4 دور آخر (شامل همین دور).
-        int windowSize = players >= 7 ? 5 : 4; // پنجره شامل دور جاری است
+        int playersCount = players;
+        int windowSize = playersCount >= 7 ? 5 : 4; // پنجره شامل دور جاری است
         int cap = 3; // در پنجره‌ی شامل دور جاری، هر نفر حداکثر 3 بار جاسوس باشد
 
-        // فقط به تعداد دورهای قبل از دور جاری نیاز داریم (windowSize - 1)
         var lastConfigs = await _db.GetLastNConfigsAsync(windowSize - 1);
 
         // تاریخچه: فقط ایندکس‌های معتبرِ 0..players-1 را لحاظ کن
         var lastSpiesHistory = (lastConfigs ?? new List<GameConfig>())
             .Select(c => (c.SpyIndices ?? new List<int>())
-                .Where(i => i >= 0 && i < players)
+                .Where(i => i >= 0 && i < playersCount)
                 .Distinct()
                 .ToList())
             .ToList();
@@ -179,7 +217,7 @@ public partial class SetupPage : ContentPage
         List<int> spyIndices;
         try
         {
-            spyIndices = PickSpiesWindowCapped(players, spies, lastSpiesHistory, cap, rand);
+            spyIndices = PickSpiesWindowCapped(playersCount, spies, lastSpiesHistory, cap, rand);
         }
         catch (InvalidOperationException)
         {
@@ -192,7 +230,7 @@ public partial class SetupPage : ContentPage
         }
         // -------------------------------------------------------
 
-        // ثبت دور جدید به‌صورت رکورد تازه (برای هیستوری)
+        // ثبت دور جدید
         var newConfig = new GameConfig
         {
             Players = players,
@@ -209,6 +247,82 @@ public partial class SetupPage : ContentPage
         await _db.AddGameConfigAsync(newConfig);
 
         await Shell.Current.GoToAsync(nameof(RevealPage));
+    }
+
+    // --- نمایش تاریخچه ۵۰۰ کلمهٔ آخر ---
+    private async void OnShowHistoryClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_db is null)
+            {
+                await DisplayAlert("خطا", "دسترسی به دیتابیس برقرار نشد.", "باشه");
+                return;
+            }
+
+            var lastConfigs = await _db.GetLastNConfigsAsync(500);
+            var words = (lastConfigs ?? new List<GameConfig>())
+                .Where(c => !string.IsNullOrWhiteSpace(c.SecretWord))
+                .OrderByDescending(c => c.CreatedOn)
+                .Select(c => c.SecretWord!.Trim())
+                .ToList();
+
+            if (words.Count == 0)
+            {
+                await DisplayAlert("تاریخچه", "هنوز کلمه‌ای در تاریخچه نیست.", "باشه");
+                return;
+            }
+
+            // مودال با اسکرول
+            var list = new VerticalStackLayout { Spacing = 8, Padding = new Thickness(12) };
+            for (int i = 0; i < words.Count; i++)
+            {
+                list.Children.Add(new Label
+                {
+                    Text = $"{i + 1}. {words[i]}",
+                    FontSize = 16,
+                    HorizontalTextAlignment = TextAlignment.Start
+                });
+            }
+
+            var closeBtn = new Button
+            {
+                Text = "بستن",
+                Margin = new Thickness(12, 8),
+                HorizontalOptions = LayoutOptions.Center
+            };
+
+            var grid = new Grid
+            {
+                RowDefinitions =
+                {
+                    new RowDefinition { Height = GridLength.Star },
+                    new RowDefinition { Height = GridLength.Auto }
+                }
+            };
+
+            var scroll = new ScrollView { Content = list };
+            grid.Add(scroll);
+            Grid.SetRow(scroll, 0);
+
+            grid.Add(closeBtn);
+            Grid.SetRow(closeBtn, 1);
+
+            var modal = new ContentPage
+            {
+                Title = "۵۰۰ کلمهٔ آخر",
+                FlowDirection = FlowDirection.RightToLeft,
+                Content = grid
+            };
+
+            closeBtn.Clicked += async (_, __) => await Navigation.PopModalAsync();
+
+            await Navigation.PushModalAsync(new NavigationPage(modal));
+        }
+        catch
+        {
+            await DisplayAlert("خطا", "نمایش تاریخچه ممکن نشد.", "باشه");
+        }
     }
 
     // ---- Helpers ----
@@ -230,10 +344,10 @@ public partial class SetupPage : ContentPage
     };
 
     /// <summary>
-    /// انتخاب وزن‌دار جاسوس‌ها با محدودیت «در پنجره‌ی آخر (بدون احتساب این دور) هر نفر حداکثر cap بار جاسوس بوده باشد».
-    /// بعد از انتخاب این دور، جمع در پنجره‌ی شامل دور جاری از cap تجاوز نمی‌کند.
+    /// انتخاب وزن‌دار جاسوس‌ها با محدودیت «در پنجرۀ آخر (بدون احتساب این دور) هر نفر حداکثر cap بار جاسوس بوده باشد».
+    /// بعد از انتخاب این دور، جمع در پنجرۀ شامل دور جاری از cap تجاوز نمی‌کند.
     /// lastSpies: لیست دورهای قبلی از جدید به قدیم (فقط windowSize-1 دور قبل را بده).
-    /// وزن‌دهی: هرچه فرد در پنجره‌ی قبلی بیشتر جاسوس بوده، وزن کمتر؛ اگر به cap رسیده باشد وزن 0 (غیرمجاز).
+    /// وزن‌دهی: هرچه فرد در پنجرۀ قبلی بیشتر جاسوس بوده، وزن کمتر؛ اگر به cap رسیده باشد وزن 0 (غیرمجاز).
     /// </summary>
     private static List<int> PickSpiesWindowCapped(
         int players,
