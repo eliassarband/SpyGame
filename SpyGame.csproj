@@ -16,7 +16,7 @@
     <ApplicationTitle>بازی جاسوس</ApplicationTitle>
 
     <!-- شناسه‌ی بسته (Android Package Name) -->
-    <ApplicationId>com.elias.spygame</ApplicationId>
+    <ApplicationId>ir.eliassarband.spygame</ApplicationId>
 
     <!-- نسخه‌ها -->
     <!-- DisplayVersion ~ VersionName (مثلاً 1.0.3) -->
