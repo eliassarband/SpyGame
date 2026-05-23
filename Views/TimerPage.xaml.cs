@@ -19,6 +19,7 @@ public partial class TimerPage : ContentPage
     private readonly AppDatabase _db;
     private System.Timers.Timer? _timer;
     private TimeSpan _remaining;
+    private double _totalSeconds;
     private bool _running;
 
     private IAudioPlayer? _endBeep;
@@ -50,6 +51,7 @@ public partial class TimerPage : ContentPage
         SpiesInfoLabel.Text = $"جاسوس‌ها: {config.Spies}";
 
         _remaining = TimeSpan.FromMinutes(config.Minutes);
+        _totalSeconds = _remaining.TotalSeconds;
         UpdateLabel();
 
         WordHintLabel.Text = $"زمان بازی: {config.Minutes} دقیقه";
@@ -102,6 +104,20 @@ public partial class TimerPage : ContentPage
     private void UpdateLabel()
     {
         TimerLabel.Text = $"{_remaining.Minutes:00}:{_remaining.Seconds:00}";
+        UpdateProgressBar();
+    }
+
+    private void UpdateProgressBar()
+    {
+        if (_totalSeconds <= 0) return;
+        double progress = _remaining.TotalSeconds / _totalSeconds;
+        TimerProgress.Progress = progress;
+        TimerProgress.ProgressColor = progress switch
+        {
+            > 0.5 => Color.FromArgb("#4CAF50"),   // سبز
+            > 0.25 => Color.FromArgb("#FFC107"),  // زرد
+            _ => Color.FromArgb("#F44336")        // قرمز
+        };
     }
 
     private void OnStartPause(object sender, EventArgs e)
@@ -132,7 +148,7 @@ public partial class TimerPage : ContentPage
     private async void OnFinish(object sender, EventArgs e)
     {
         Pause();
-        await Shell.Current.GoToAsync($"{nameof(SetupPage)}");
+        await Shell.Current.GoToAsync(nameof(ResultPage));
     }
 
     private void Start()
@@ -217,8 +233,8 @@ public partial class TimerPage : ContentPage
         try { Vibration.Vibrate(TimeSpan.FromMilliseconds(600)); } catch { }
         try { _endBeep?.Play(); } catch { }
 
-        await DisplayAlert("پایان زمان", "زمان بازی به پایان رسید.", "باشه");
-        await Shell.Current.GoToAsync($"{nameof(SetupPage)}");
+        await DisplayAlert("پایان زمان", "زمان بازی تموم شد! وقت رای‌گیریه.", "بریم رای‌گیری");
+        await Shell.Current.GoToAsync(nameof(ResultPage));
     }
 
 #if ANDROID

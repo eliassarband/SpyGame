@@ -25,5 +25,7 @@ public class WordItem
     public string Text { get; set; } = string.Empty;
 
     public DifficultyLevel Difficulty { get; set; } = DifficultyLevel.Medium;
+
+    public bool IsCustom { get; set; } = false;
 }
 

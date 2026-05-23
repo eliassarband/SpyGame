@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.CustomWordsPage"
+             Title="کلمات سفارشی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <ScrollView>
+        <Border Style="{StaticResource Card}" Margin="16">
+            <VerticalStackLayout Spacing="14" Padding="4">
+
+                <Label Text="کلمات سفارشی"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="کلمات سفارشی در کنار کلمات اصلی در بازی استفاده می‌شن."
+                       Style="{StaticResource BodyDim}"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"/>
+
+                <!-- نمایش سهمیه -->
+                <Border x:Name="QuotaBorder" StrokeShape="RoundRectangle 10" Padding="12,8"
+                        BackgroundColor="{AppThemeBinding Light=#fff8e1, Dark=#2a2000}"
+                        Stroke="#FFC107" StrokeThickness="1">
+                    <Label x:Name="QuotaLabel"
+                           Text="۰ از ۵ کلمه رایگان استفاده شده"
+                           HorizontalTextAlignment="Center" FontSize="13"/>
+                </Border>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- فرم افزودن کلمه -->
+                <Label Text="افزودن کلمه جدید"
+                       FontSize="16" FontAttributes="Bold"/>
+
+                <Entry x:Name="WordEntry"
+                       Placeholder="کلمه جدید را اینجا بنویسید"
+                       Keyboard="Text"
+                       MaxLength="30"
+                       ClearButtonVisibility="WhileEditing"/>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="دسته‌بندی" Style="{StaticResource BodyDim}"/>
+                        <Picker x:Name="CategoryPicker"
+                                ItemDisplayBinding="{Binding Name}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="سختی" Style="{StaticResource BodyDim}"/>
+                        <Picker x:Name="DifficultyPicker"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Button x:Name="AddWordButton"
+                        Text="افزودن کلمه"
+                        Style="{StaticResource SetupPrimaryButton}"
+                        Clicked="OnAddWordClicked"/>
+
+                <Button Text="ارتقاء به ویژه (نامحدود) 🌟"
+                        x:Name="UpgradeHintButton"
+                        FontSize="13"
+                        BackgroundColor="#512BD4" TextColor="White" CornerRadius="8"
+                        IsVisible="False"
+                        Clicked="OnUpgradeClicked"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- لیست کلمات سفارشی -->
+                <Label Text="کلمات موجود:"
+                       FontSize="16" FontAttributes="Bold"/>
+
+                <Label x:Name="EmptyLabel"
+                       Text="هنوز کلمه‌ای اضافه نشده"
+                       Style="{StaticResource BodyDim}"
+                       HorizontalOptions="Center"
+                       IsVisible="True"/>
+
+                <VerticalStackLayout x:Name="WordsList" Spacing="6"/>
+
+                <Button Text="بازگشت"
+                        Style="{StaticResource TimerSecondaryButton}"
+                        Clicked="OnBack"
+                        Margin="0,8,0,0"/>
+
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
+</ContentPage>

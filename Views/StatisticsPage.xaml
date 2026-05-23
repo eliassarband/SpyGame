@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.StatisticsPage"
+             Title="آمار بازی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <ScrollView>
+        <Border Style="{StaticResource Card}" Margin="16">
+            <VerticalStackLayout Spacing="14" Padding="4">
+
+                <Label Text="آمار بازی"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- کارت‌های آمار -->
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+
+                    <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="TotalGamesLabel" Text="0" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="کل بازی‌ها" Style="{StaticResource BodyDim}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 12" Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="SpyWinsLabel" Text="0" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center"
+                                   TextColor="#E53935"/>
+                            <Label Text="برد جاسوس" Style="{StaticResource BodyDim}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="PlayerWinsLabel" Text="0" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center"
+                                   TextColor="#4CAF50"/>
+                            <Label Text="برد بازیکنان" Style="{StaticResource BodyDim}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 12" Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="SpyWinRateLabel" Text="0%" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center"
+                                   TextColor="#FF9800"/>
+                            <Label Text="درصد برد جاسوس" Style="{StaticResource BodyDim}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </Grid>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <Label Text="بیشترین استفاده:"
+                       FontSize="16" FontAttributes="Bold"/>
+
+                <Label x:Name="FavCategoryLabel"
+                       Text="—"
+                       FontSize="15"
+                       Style="{StaticResource BodyDim}"/>
+
+                <Label x:Name="FavWordLabel"
+                       Text="—"
+                       FontSize="15"
+                       Style="{StaticResource BodyDim}"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <Label Text="آخرین ۵ بازی:"
+                       FontSize="16" FontAttributes="Bold"/>
+
+                <VerticalStackLayout x:Name="RecentGamesList" Spacing="6"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <Button Text="پاک کردن همه آمار"
+                        Style="{StaticResource TimerDangerButton}"
+                        Clicked="OnClearStats"
+                        Margin="0,4"/>
+
+                <Button Text="بازگشت"
+                        Style="{StaticResource TimerSecondaryButton}"
+                        Clicked="OnBack"/>
+
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
+</ContentPage>

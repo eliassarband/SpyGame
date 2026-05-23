@@ -49,6 +49,8 @@ public class GameConfig
         }
     }
 
+    public bool SpiesKnowEachOther { get; set; } = false;
+
     // برای مرتب‌سازی آخرین کانفیگ
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 }

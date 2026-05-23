@@ -445,8 +445,8 @@
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="20" />
         <Setter Property="Margin" Value="24" />
-        <Setter Property="HorizontalOptions" Value="Center" />
-        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="VerticalOptions" Value="Fill" />
         <Setter Property="MaximumWidthRequest" Value="640" />
         <Setter Property="Shadow">
             <Setter.Value>

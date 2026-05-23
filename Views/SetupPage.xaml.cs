@@ -4,25 +4,61 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SpyGame.Data;
 using SpyGame.Models;
+using SpyGame.Services;
 
 namespace SpyGame.Views;
 
 public partial class SetupPage : ContentPage
 {
     private readonly AppDatabase _db;
+    private readonly PremiumManager _premium;
 
-    public SetupPage(AppDatabase db)
+    private record CategoryDisplayItem(int Id, string Name, string DisplayName);
+
+    private int _players = 6;
+    private int _spies = 2;
+    private int _minutes = 3;
+
+    private static readonly string[] _themes = { "روشن", "تیره", "طبق گوشی" };
+    private static readonly string[] _themeIcons = { "☀️", "🌙", "⚙️" };
+    private int _themeIndex = 0;
+
+    public SetupPage(AppDatabase db, PremiumManager premium)
     {
         InitializeComponent();
         _db = db;
+        _premium = premium;
 
-        PlayersStepper.ValueChanged += (_, __) => PlayersLabel.Text = ((int)PlayersStepper.Value).ToString();
-        SpiesStepper.ValueChanged += (_, __) => SpiesLabel.Text = ((int)SpiesStepper.Value).ToString();
-        MinutesStepper.ValueChanged += (_, __) => MinutesLabel.Text = ((int)MinutesStepper.Value).ToString();
-
-        // تغییر دسته/سختی → بروزرسانی شمارنده‌ها
         CategoryPicker.SelectedIndexChanged += async (_, __) => await UpdateWordCountsAsync();
         DifficultyPicker.SelectedIndexChanged += async (_, __) => await UpdateWordCountsAsync();
+    }
+
+    // ---- دکمه‌های + / − ----
+    private void OnPlayersMinus(object s, EventArgs e) { if (_players > 3)  { _players--;  PlayersLabel.Text  = _players.ToString(); } }
+    private void OnPlayersPlus (object s, EventArgs e) { if (_players < 20) { _players++;  PlayersLabel.Text  = _players.ToString(); } }
+    private void OnSpiesMinus  (object s, EventArgs e) { if (_spies > 1)    { _spies--;    SpiesLabel.Text    = _spies.ToString(); } }
+    private void OnSpiesPlus   (object s, EventArgs e) { if (_spies < 10)   { _spies++;    SpiesLabel.Text    = _spies.ToString(); } }
+    private void OnMinutesMinus(object s, EventArgs e) { if (_minutes > 1)  { _minutes--;  MinutesLabel.Text  = _minutes.ToString(); } }
+    private void OnMinutesPlus (object s, EventArgs e) { if (_minutes < 20) { _minutes++;  MinutesLabel.Text  = _minutes.ToString(); } }
+
+    private void OnThemeToggle(object sender, EventArgs e)
+    {
+        _themeIndex = (_themeIndex + 1) % _themes.Length;
+        ApplyAndSaveTheme();
+    }
+
+    private void ApplyAndSaveTheme()
+    {
+        string selected = _themes[_themeIndex];
+        if (Application.Current != null)
+            Application.Current.UserAppTheme = selected switch
+            {
+                "تیره" => AppTheme.Dark,
+                "طبق گوشی" => AppTheme.Unspecified,
+                _ => AppTheme.Light
+            };
+        Preferences.Set("app_theme", selected);
+        ThemeButton.Text = _themeIcons[_themeIndex];
     }
 
     protected override async void OnAppearing()
@@ -47,47 +83,61 @@ public partial class SetupPage : ContentPage
 
         // بارگذاری دسته‌ها از DB
         var categories = await _db.GetCategoriesAsync();
+        bool isPremium = _premium.IsPremium;
 
-        // «درهم» را همیشه اول لیست بیاور
-        CategoryPicker.ItemsSource = categories
+        // ساخت آیتم‌های نمایشی — دسته‌های ویژه با 🌟 برچسب دارند
+        var displayItems = categories
             .OrderByDescending(c => c.Name == "درهم")
             .ThenBy(c => c.Name)
+            .Select(c => new CategoryDisplayItem(
+                c.Id, c.Name,
+                PremiumManager.PremiumCategoryNames.Contains(c.Name) && !isPremium
+                    ? $"{c.Name} 🌟" : c.Name))
             .ToList();
 
-        // انتخاب پیش‌فرض
-        var mixed = categories.FirstOrDefault(c => c.Name == "درهم");
-        CategoryPicker.SelectedItem = mixed ?? categories.FirstOrDefault();
+        CategoryPicker.ItemsSource = displayItems;
+
+        var mixedItem = displayItems.FirstOrDefault(di => di.Name == "درهم");
+        CategoryPicker.SelectedItem = mixedItem ?? displayItems.FirstOrDefault();
+
+        // نمایش دکمه ارتقاء فقط برای کاربران رایگان
+        UpgradeNavButton.IsVisible = !isPremium;
 
         // بازیابی آخرین تنظیمات (در صورت وجود)
         var lastConfig = await _db.GetLastConfigAsync();
         if (lastConfig != null)
         {
-            PlayersStepper.Value = lastConfig.Players;
-            MinutesStepper.Value = lastConfig.Minutes;
+            _players = Math.Clamp(lastConfig.Players, 3, 20);
+            _spies   = Math.Clamp(lastConfig.Spies,   1, 10);
+            _minutes = Math.Clamp(lastConfig.Minutes,  1, 20);
             CategoryPicker.SelectedItem =
-                categories.FirstOrDefault(c => c.Id == lastConfig.CategoryId)
-                ?? mixed
-                ?? categories.FirstOrDefault();
-            SpiesStepper.Value = lastConfig.Spies;
+                displayItems.FirstOrDefault(di => di.Id == lastConfig.CategoryId)
+                ?? mixedItem
+                ?? displayItems.FirstOrDefault();
 
-            // بازگردانی درجه سختی ذخیره‌شده
             var lastDiffFa = ToFa(lastConfig.SelectedDifficulty);
             if (difficulties.Contains(lastDiffFa))
                 DifficultyPicker.SelectedItem = lastDiffFa;
+
+            SpiesKnowSwitch.IsToggled = lastConfig.SpiesKnowEachOther;
         }
         else
         {
-            PlayersStepper.Value = 6;
-            MinutesStepper.Value = 3;
-            CategoryPicker.SelectedItem = mixed ?? categories.FirstOrDefault();
-            SpiesStepper.Value = 2;
+            _players = 6; _spies = 2; _minutes = 3;
+            CategoryPicker.SelectedItem = mixedItem ?? displayItems.FirstOrDefault();
             DifficultyPicker.SelectedItem = "درهم";
+            SpiesKnowSwitch.IsToggled = false;
         }
 
-        // اطمینان از نمایش مقادیر
-        PlayersLabel.Text = ((int)PlayersStepper.Value).ToString();
-        SpiesLabel.Text = ((int)SpiesStepper.Value).ToString();
-        MinutesLabel.Text = ((int)MinutesStepper.Value).ToString();
+        PlayersLabel.Text  = _players.ToString();
+        SpiesLabel.Text    = _spies.ToString();
+        MinutesLabel.Text  = _minutes.ToString();
+
+        // بازگردانی آیکن تم
+        string savedTheme = Preferences.Get("app_theme", "روشن");
+        _themeIndex = Array.IndexOf(_themes, savedTheme);
+        if (_themeIndex < 0) _themeIndex = 0;
+        ThemeButton.Text = _themeIcons[_themeIndex];
 
         // شمارنده‌ی کلمات
         await UpdateWordCountsAsync();
@@ -97,31 +147,24 @@ public partial class SetupPage : ContentPage
     {
         if (_db is null) return;
 
-        // کل کلمات DB
         int total = await _db.GetWordCountAsync();
 
-        // تعداد «قابل انتخاب» با توجه به انتخاب‌های فعلی + حذف ۵۰۰ کلمه‌ی آخر
-        var selectedCategory = CategoryPicker.SelectedItem as Category;
+        var selectedItem = CategoryPicker.SelectedItem as CategoryDisplayItem;
         var selectedDifficultyFa = (DifficultyPicker.SelectedItem as string) ?? "درهم";
         DifficultyLevel? diff = FromFa(selectedDifficultyFa);
 
         List<WordItem> pool;
-        if (selectedCategory != null && selectedCategory.Name != "درهم")
+        if (selectedItem != null && selectedItem.Name != "درهم")
         {
-            pool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 500);
+            pool = await _db.GetWordsByCategoryAsync(selectedItem.Id, diff, 500);
             if (pool.Count == 0)
-            {
-                // اگر همه در ۵۰۰ تای اخیر بودند، برای اطلاع بهتر عدد، بدون محدودیت هم می‌گیریم
-                pool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 0);
-            }
+                pool = await _db.GetWordsByCategoryAsync(selectedItem.Id, diff, 0);
         }
         else
         {
             pool = await _db.GetAllWordsAsync(diff, 500);
             if (pool.Count == 0)
-            {
                 pool = await _db.GetAllWordsAsync(diff, 0);
-            }
         }
 
         WordCountLabel.Text = $"کلمات: کل {total:N0} / قابل انتخاب {pool.Count:N0}";
@@ -135,13 +178,25 @@ public partial class SetupPage : ContentPage
             return;
         }
 
-        var selectedCategory = CategoryPicker.SelectedItem as Category;
+        var selectedItem = CategoryPicker.SelectedItem as CategoryDisplayItem;
         var selectedDifficultyFa = (DifficultyPicker.SelectedItem as string) ?? "درهم";
         DifficultyLevel? diff = FromFa(selectedDifficultyFa);
 
-        int players = (int)PlayersStepper.Value;
-        int spies = (int)SpiesStepper.Value;
-        int minutes = (int)MinutesStepper.Value;
+        // دروازه ویژه: دسته‌های پریمیوم نیاز به اشتراک دارند
+        if (selectedItem != null && PremiumManager.PremiumCategoryNames.Contains(selectedItem.Name) && !_premium.IsPremium)
+        {
+            bool goUpgrade = await DisplayAlert(
+                "دسته ویژه 🌟",
+                "این دسته‌بندی مخصوص کاربران ویژه است.",
+                "مشاهده بسته ویژه", "بعداً");
+            if (goUpgrade)
+                await Shell.Current.GoToAsync(nameof(UpgradePage));
+            return;
+        }
+
+        int players = _players;
+        int spies   = _spies;
+        int minutes = _minutes;
 
         // اعتبارسنجی
         if (players < 3)
@@ -168,22 +223,17 @@ public partial class SetupPage : ContentPage
 
         // انتخاب کلمه با فیلتر Difficulty + جلوگیری از تکرار ۵۰۰ کلمه‌ی آخر
         List<WordItem> wordPool;
-        if (selectedCategory != null && selectedCategory.Name != "درهم")
+        if (selectedItem != null && selectedItem.Name != "درهم")
         {
-            wordPool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 500);
+            wordPool = await _db.GetWordsByCategoryAsync(selectedItem.Id, diff, 500);
             if (wordPool.Count == 0)
-            {
-                // اگر همه مصرف شده‌اند → بدون محدودیت تاریخچه (fallback)
-                wordPool = await _db.GetWordsByCategoryAsync(selectedCategory.Id, diff, 0);
-            }
+                wordPool = await _db.GetWordsByCategoryAsync(selectedItem.Id, diff, 0);
         }
         else
         {
             wordPool = await _db.GetAllWordsAsync(diff, 500);
             if (wordPool.Count == 0)
-            {
                 wordPool = await _db.GetAllWordsAsync(diff, 0);
-            }
         }
 
         if (wordPool.Count == 0)
@@ -196,39 +246,48 @@ public partial class SetupPage : ContentPage
         var word = wordPool[rand.Next(wordPool.Count)];
         var secret = word.Text;
 
-        // ثبت در تاریخچه
+        // ثبت در تاریخچه کلمات
         await _db.AddWordHistoryAsync(new WordHistory { WordItemId = word.Id });
 
-        // ---------- انتخاب جاسوس‌ها با قانون پنجره‌ای ----------
+        // ---------- انتخاب جاسوس‌ها با قوانین جدید ----------
+        // قانون 1 (پشت‌سرهم نشدن) و قانون 2 (در N دور اخیر بیش از 3 بار نباشد)
+        // تفسیر قانون 2: پنجره = N-1 دور قبلی؛ طوری انتخاب می‌کنیم که با احتساب این دور، سقف 3 رعایت شود.
         int playersCount = players;
-        int windowSize = playersCount >= 7 ? 5 : 4; // پنجره شامل دور جاری است
-        int cap = 3; // در پنجره‌ی شامل دور جاری، هر نفر حداکثر 3 بار جاسوس باشد
+        int windowSize = Math.Max(1, playersCount - 1); // N-1
+        int cap = 3;
 
-        var lastConfigs = await _db.GetLastNConfigsAsync(windowSize - 1);
-
-        // تاریخچه: فقط ایندکس‌های معتبرِ 0..players-1 را لحاظ کن
-        var lastSpiesHistory = (lastConfigs ?? new List<GameConfig>())
+        var lastConfigsForWindow = await _db.GetLastNConfigsAsync(windowSize);
+        var lastSpiesHistory = (lastConfigsForWindow ?? new List<GameConfig>())
             .Select(c => (c.SpyIndices ?? new List<int>())
                 .Where(i => i >= 0 && i < playersCount)
                 .Distinct()
                 .ToList())
             .ToList();
 
+        // دور قبلی برای جلوگیری از back-to-back
+        var lastRound = await _db.GetLastNConfigsAsync(1);
+        var prevRoundSpies = (lastRound?.FirstOrDefault()?.SpyIndices ?? new List<int>())
+            .Where(i => i >= 0 && i < playersCount)
+            .Distinct()
+            .ToHashSet();
+
         List<int> spyIndices;
         try
         {
-            spyIndices = PickSpiesWindowCapped(playersCount, spies, lastSpiesHistory, cap, rand);
+            spyIndices = PickSpies_NoBackToBack_And_WindowCap(
+                playersCount, spies, lastSpiesHistory, prevRoundSpies, cap, rand);
         }
         catch (InvalidOperationException)
         {
             await DisplayAlert(
                 "ناممکن",
-                $"با قانون «در {windowSize} دور آخر هر نفر حداکثر {cap} بار جاسوس»، تعداد افراد واجد شرایط کمتر از تعداد جاسوس‌های درخواستی است.\n" +
-                "یا تعداد جاسوس‌ها را کاهش دهید یا یک دور بدون این محدودیت بازی کنید.",
+                $"با قانون «پشت‌سرهم جاسوس نشدن» و «در {playersCount} دور اخیر بیش از ۳ بار جاسوس نشدن»، " +
+                $"به اندازهٔ کافی فرد واجد شرایط برای {spies} جاسوس موجود نیست.\n" +
+                "یا تعداد جاسوس‌ها را کاهش دهید یا با بازیکنان بیشتری بازی کنید.",
                 "باشه");
             return;
         }
-        // -------------------------------------------------------
+        // ---------------------------------------------------
 
         // ثبت دور جدید
         var newConfig = new GameConfig
@@ -236,11 +295,12 @@ public partial class SetupPage : ContentPage
             Players = players,
             Spies = spies,
             Minutes = minutes,
-            CategoryId = selectedCategory?.Id,
-            CategoryName = selectedCategory?.Name ?? "درهم",
+            CategoryId = selectedItem?.Id,
+            CategoryName = selectedItem?.Name ?? "درهم",
             SecretWord = secret,
             SpyIndices = spyIndices,
             SelectedDifficulty = diff,
+            SpiesKnowEachOther = SpiesKnowSwitch.IsToggled,
             CurrentPlayerIndex = 0,
             CreatedOn = DateTime.UtcNow
         };
@@ -248,6 +308,18 @@ public partial class SetupPage : ContentPage
 
         await Shell.Current.GoToAsync(nameof(RevealPage));
     }
+
+    private async void OnTutorialClicked(object sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(TutorialPage));
+
+    private async void OnStatisticsClicked(object sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(StatisticsPage));
+
+    private async void OnCustomWordsClicked(object sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(CustomWordsPage));
+
+    private async void OnUpgradeClicked(object sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(UpgradePage));
 
     // --- نمایش تاریخچه ۵۰۰ کلمهٔ آخر ---
     private async void OnShowHistoryClicked(object sender, EventArgs e)
@@ -344,49 +416,51 @@ public partial class SetupPage : ContentPage
     };
 
     /// <summary>
-    /// انتخاب وزن‌دار جاسوس‌ها با محدودیت «در پنجرۀ آخر (بدون احتساب این دور) هر نفر حداکثر cap بار جاسوس بوده باشد».
-    /// بعد از انتخاب این دور، جمع در پنجرۀ شامل دور جاری از cap تجاوز نمی‌کند.
-    /// lastSpies: لیست دورهای قبلی از جدید به قدیم (فقط windowSize-1 دور قبل را بده).
-    /// وزن‌دهی: هرچه فرد در پنجرۀ قبلی بیشتر جاسوس بوده، وزن کمتر؛ اگر به cap رسیده باشد وزن 0 (غیرمجاز).
+    /// انتخاب جاسوس‌ها با دو قید:
+    /// 1) هیچ‌کس دو دور پشت‌سرهم (prevRoundSpies) جاسوس نشود.
+    /// 2) در پنجرهٔ آخر (lastSpiesHistory) هر نفر بیش از cap بار جاسوس نشده باشد.
     /// </summary>
-    private static List<int> PickSpiesWindowCapped(
+    private static List<int> PickSpies_NoBackToBack_And_WindowCap(
         int players,
         int spies,
-        List<List<int>> lastSpies,
+        List<List<int>> lastSpiesHistory,
+        HashSet<int> prevRoundSpies,
         int cap,
         Random rand)
     {
-        lastSpies ??= new List<List<int>>();
+        lastSpiesHistory ??= new List<List<int>>();
+        prevRoundSpies ??= new HashSet<int>();
 
         int CountInWindow(int idx)
         {
             int cnt = 0;
-            for (int r = 0; r < lastSpies.Count; r++)
+            for (int r = 0; r < lastSpiesHistory.Count; r++)
             {
-                var spiesInRound = lastSpies[r] ?? new List<int>();
+                var spiesInRound = lastSpiesHistory[r] ?? new List<int>();
                 if (spiesInRound.Contains(idx)) cnt++;
             }
             return cnt;
         }
 
-        double WeightForCount(int cnt) => cnt switch
-        {
-            0 => 1.0,
-            1 => 0.7,
-            2 => 0.4,
-            _ => 0.0 // cnt >= cap → در این دور انتخاب نشود
-        };
+        double WeightFor(int countInWindow, bool wasSpyPrevRound) =>
+            (wasSpyPrevRound || countInWindow >= cap) ? 0.0 :
+            countInWindow switch
+            {
+                0 => 1.0,
+                1 => 0.7,
+                2 => 0.4,
+                _ => 0.0
+            };
 
         var candidates = Enumerable.Range(0, players).ToList();
         var counts = candidates.ToDictionary(i => i, CountInWindow);
-        var weights = candidates.ToDictionary(i => i,
-            i => counts[i] >= cap ? 0.0 : WeightForCount(counts[i]));
+        var weights = candidates.ToDictionary(i => i, i => WeightFor(counts[i], prevRoundSpies.Contains(i)));
 
         var eligible = new HashSet<int>(weights.Where(kv => kv.Value > 0).Select(kv => kv.Key));
         if (eligible.Count < spies)
-            throw new InvalidOperationException("Eligible less than requested spies.");
+            throw new InvalidOperationException("Not enough eligible spies under constraints.");
 
-        // انتخاب وزن‌دار بدون‌جای‌گذاری از بین واجدین
+        // انتخاب وزن‌دار بدون‌جای‌گذاری
         var picks = new List<int>();
         var pool = new HashSet<int>(eligible);
 
@@ -409,7 +483,6 @@ public partial class SetupPage : ContentPage
             pool.Remove(chosen);
         }
 
-        // اطمینان: اگر به هر دلیل کمتر شد، از eligible پر کن (بدون نقض cap)
         while (picks.Count < spies)
         {
             var rest = eligible.Except(picks).ToList();

@@ -5,122 +5,163 @@
              Title="تنظیمات بازی"
              FlowDirection="RightToLeft">
 
-    <Grid>
-        <!-- کارت مرکزی بدون Scroll -->
-        <Border x:Name="Card" Style="{StaticResource Card}">
-            <!-- چیدمان فشرده و دو ستونه -->
-            <Grid ColumnSpacing="12" RowSpacing="12" Padding="8">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <!-- Title -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Category -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Difficulty -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Word counts -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Players -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Spies -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Minutes -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Start -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- History -->
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+    <ScrollView>
+        <Border x:Name="Card" Style="{StaticResource Card}" Margin="12">
+            <VerticalStackLayout Spacing="14" Padding="8">
 
-                <!-- Title -->
-                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                       Text="تنظیمات بازی"
-                       Style="{StaticResource TitleLarge}"
-                       HorizontalOptions="Center"
-                       Margin="0,0,0,8"/>
+                <!-- عنوان + آیکن تم -->
+                <Grid ColumnDefinitions="44,*,44">
+                    <Button Grid.Column="0" x:Name="ThemeButton"
+                            Text="☀️" FontSize="20"
+                            BackgroundColor="Transparent"
+                            BorderWidth="0" Padding="0"
+                            WidthRequest="44" HeightRequest="44"
+                            Clicked="OnThemeToggle"/>
+                    <Label Grid.Column="1"
+                           Text="تنظیمات بازی"
+                           Style="{StaticResource TitleLarge}"
+                           HorizontalOptions="Center"/>
+                </Grid>
 
                 <!-- دسته‌بندی -->
-                <Label Grid.Row="1" Grid.Column="0"
-                       Text="دسته‌بندی" Style="{StaticResource BodyDim}"
-                       VerticalTextAlignment="Center" />
-                <Picker Grid.Row="1" Grid.Column="1"
-                        x:Name="CategoryPicker"
-                        FontSize="Medium"
-                        ItemDisplayBinding="{Binding Name}" />
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Label Text="دسته‌بندی" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <Picker Grid.Column="1" x:Name="CategoryPicker"
+                            ItemDisplayBinding="{Binding DisplayName}"/>
+                </Grid>
 
                 <!-- درجه سختی -->
-                <Label Grid.Row="2" Grid.Column="0"
-                       Text="درجه سختی" Style="{StaticResource BodyDim}"
-                       VerticalTextAlignment="Center" />
-                <Picker Grid.Row="2" Grid.Column="1"
-                        x:Name="DifficultyPicker"
-                        FontSize="Medium" />
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Label Text="درجه سختی" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <Picker Grid.Column="1" x:Name="DifficultyPicker"/>
+                </Grid>
 
-                <!-- Word counts -->
-                <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                       x:Name="WordCountLabel"
+                <!-- تعداد کلمات -->
+                <Label x:Name="WordCountLabel"
                        Text="کلمات: کل 0 / قابل انتخاب 0"
                        Style="{StaticResource BodyDim}"
-                       HorizontalOptions="Center"
-                       Margin="0,2,0,2" />
+                       HorizontalOptions="Center"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
 
                 <!-- تعداد بازیکن -->
-                <Label Grid.Row="4" Grid.Column="0"
-                       Text="تعداد بازیکن" Style="{StaticResource BodyDim}"
-                       VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="4" Grid.Column="1" Spacing="8">
-                    <Stepper x:Name="PlayersStepper"
-                             Minimum="3" Maximum="20" Increment="1" Value="6" />
-                    <Label x:Name="PlayersLabel"
-                           Text="6"
-                           FontSize="Medium"
-                           VerticalTextAlignment="Center" />
-                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label Text="تعداد بازیکن" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                        <Button Text="−" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnPlayersMinus"/>
+                        <Label x:Name="PlayersLabel" Text="6"
+                               FontSize="20" FontAttributes="Bold"
+                               VerticalTextAlignment="Center"
+                               HorizontalTextAlignment="Center"
+                               WidthRequest="40"/>
+                        <Button Text="+" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnPlayersPlus"/>
+                    </HorizontalStackLayout>
+                </Grid>
 
                 <!-- تعداد جاسوس -->
-                <Label Grid.Row="5" Grid.Column="0"
-                       Text="تعداد جاسوس" Style="{StaticResource BodyDim}"
-                       VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="5" Grid.Column="1" Spacing="8">
-                    <Stepper x:Name="SpiesStepper"
-                             Minimum="1" Maximum="10" Increment="1" Value="2" />
-                    <Label x:Name="SpiesLabel"
-                           Text="2"
-                           FontSize="Medium"
-                           VerticalTextAlignment="Center" />
-                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label Text="تعداد جاسوس" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                        <Button Text="−" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnSpiesMinus"/>
+                        <Label x:Name="SpiesLabel" Text="2"
+                               FontSize="20" FontAttributes="Bold"
+                               VerticalTextAlignment="Center"
+                               HorizontalTextAlignment="Center"
+                               WidthRequest="40"/>
+                        <Button Text="+" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnSpiesPlus"/>
+                    </HorizontalStackLayout>
+                </Grid>
 
-                <!-- زمان (دقیقه) -->
-                <Label Grid.Row="6" Grid.Column="0"
-                       Text="زمان (دقیقه)" Style="{StaticResource BodyDim}"
-                       VerticalTextAlignment="Center" />
-                <HorizontalStackLayout Grid.Row="6" Grid.Column="1" Spacing="8">
-                    <Stepper x:Name="MinutesStepper"
-                             Minimum="1" Maximum="20" Increment="1" Value="5" />
-                    <Label x:Name="MinutesLabel"
-                           Text="5"
-                           FontSize="Medium"
-                           VerticalTextAlignment="Center" />
-                </HorizontalStackLayout>
+                <!-- زمان -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label Text="زمان (دقیقه)" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                        <Button Text="−" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnMinutesMinus"/>
+                        <Label x:Name="MinutesLabel" Text="3"
+                               FontSize="20" FontAttributes="Bold"
+                               VerticalTextAlignment="Center"
+                               HorizontalTextAlignment="Center"
+                               WidthRequest="40"/>
+                        <Button Text="+" WidthRequest="44" HeightRequest="44"
+                                CornerRadius="8" Padding="0" FontSize="22"
+                                BackgroundColor="{AppThemeBinding Light=#DEDEDE, Dark=#444444}"
+                                TextColor="{AppThemeBinding Light=#212121, Dark=#ffffff}"
+                                Clicked="OnMinutesPlus"/>
+                    </HorizontalStackLayout>
+                </Grid>
 
-                <!-- شروع -->
-                <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
-                        Text="شروع بازی"
+                <!-- جاسوس‌ها هم‌دیگه رو بشناسن -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label Text="جاسوس‌ها هم‌دیگه رو بشناسن" Style="{StaticResource BodyDim}"
+                           VerticalTextAlignment="Center"/>
+                    <Switch Grid.Column="1" x:Name="SpiesKnowSwitch"
+                            IsToggled="False" HorizontalOptions="Start"/>
+                </Grid>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- شروع بازی -->
+                <Button Text="شروع بازی"
                         Style="{StaticResource SetupPrimaryButton}"
-                        FontSize="Medium"
+                        FontSize="17"
                         Clicked="OnStartClicked"
-                        Margin="0,4,0,0"/>
+                        Margin="0,4"/>
 
-                <!-- نمایش تاریخچه ۵۰۰ کلمهٔ آخر -->
-                <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
-                        Text="نمایش تاریخچه ۵۰۰ کلمهٔ آخر"
-                        FontSize="Medium"
+                <!-- ردیف اول ناوبری -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                    <Button Grid.Column="0" Text="آموزش" FontSize="13"
+                            Style="{StaticResource TimerSecondaryButton}"
+                            Clicked="OnTutorialClicked" Padding="4,10"/>
+                    <Button Grid.Column="1" Text="آمار" FontSize="13"
+                            Style="{StaticResource TimerSecondaryButton}"
+                            Clicked="OnStatisticsClicked" Padding="4,10"/>
+                    <Button Grid.Column="2" Text="کلمات من" FontSize="13"
+                            Style="{StaticResource TimerSecondaryButton}"
+                            Clicked="OnCustomWordsClicked" Padding="4,10"/>
+                </Grid>
+
+                <!-- دکمه ارتقاء ویژه -->
+                <Button x:Name="UpgradeNavButton"
+                        Text="ارتقاء به ویژه 🌟"
+                        FontSize="14"
+                        BackgroundColor="#512BD4" TextColor="White" CornerRadius="8"
+                        Clicked="OnUpgradeClicked" Padding="8,10"/>
+
+                <!-- تاریخچه -->
+                <Button Text="تاریخچه ۵۰۰ کلمه آخر"
+                        Style="{StaticResource TimerSecondaryButton}"
+                        FontSize="13"
                         Clicked="OnShowHistoryClicked"
                         Margin="0,0,0,4"/>
-            </Grid>
+
+            </VerticalStackLayout>
         </Border>
-    </Grid>
+    </ScrollView>
 </ContentPage>

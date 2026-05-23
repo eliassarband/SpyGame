@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.ResultPage"
+             Title="نتیجه بازی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <Border Style="{StaticResource Card}" Margin="16">
+            <VerticalStackLayout Spacing="10" Padding="4">
+
+                <!-- ===== فاز ۱: رای‌گیری ===== -->
+                <VerticalStackLayout x:Name="VotingPhase" Spacing="10">
+
+                    <Label Text="رای‌گیری"
+                           Style="{StaticResource TitleLarge}"
+                           HorizontalOptions="Center"/>
+
+                    <Label Text="بازیکنی که فکر می‌کنید جاسوسه رو انتخاب کنید:"
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyDim}"/>
+
+                    <!-- لیست بازیکنان (پر می‌شه از code-behind) -->
+                    <VerticalStackLayout x:Name="PlayersList" Spacing="6"/>
+
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                             Margin="0,6"/>
+
+                    <!-- حدس جاسوس (اختیاری — قبل از اعلام نتیجه) -->
+                    <Label Text="اگر جاسوس می‌خواد کلمه رو قبل از اعلام نتیجه حدس بزنه، اینجا بنویسید:"
+                           Style="{StaticResource BodyDim}"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Entry x:Name="SpyGuessEntry"
+                           Placeholder="حدس جاسوس (اختیاری)"
+                           Keyboard="Text"
+                           HorizontalTextAlignment="Center"
+                           ClearButtonVisibility="WhileEditing"/>
+
+                    <Button x:Name="AnnounceButton"
+                            Text="اعلام نتیجه"
+                            Style="{StaticResource SetupPrimaryButton}"
+                            Clicked="OnAnnounceClicked"
+                            IsEnabled="False"
+                            Margin="0,4"/>
+
+                </VerticalStackLayout>
+
+                <!-- ===== فاز ۲: نتیجه ===== -->
+                <VerticalStackLayout x:Name="ResultPhase" IsVisible="False" Spacing="12">
+
+                    <Label x:Name="VerdictLabel"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"/>
+
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                             Margin="0,2"/>
+
+                    <Label x:Name="SecretWordLabel"
+                           FontSize="18"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Label x:Name="SpyNamesLabel"
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyDim}"/>
+
+                    <Label x:Name="AccusedLabel"
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyDim}"/>
+
+                    <Label x:Name="GuessResultLabel"
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyDim}"
+                           IsVisible="False"/>
+
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                             Margin="0,4"/>
+
+                    <!-- امتیاز جلسه -->
+                    <Label Text="امتیاز جلسه"
+                           Style="{StaticResource TitleLarge}"
+                           FontSize="18"
+                           HorizontalOptions="Center"/>
+
+                    <Label x:Name="SessionScoreLabel"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           FontAttributes="Bold"/>
+
+                    <Label x:Name="RoundsLabel"
+                           Style="{StaticResource BodyDim}"
+                           HorizontalTextAlignment="Center"/>
+
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                             Margin="0,4"/>
+
+                    <Button Text="دور جدید"
+                            Style="{StaticResource SetupPrimaryButton}"
+                            Clicked="OnNewRound"
+                            Margin="0,2"/>
+
+                    <Button Text="پایان بازی و ریست امتیاز"
+                            Style="{StaticResource TimerDangerButton}"
+                            Clicked="OnEndGame"
+                            Margin="0,2"/>
+
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
+</ContentPage>

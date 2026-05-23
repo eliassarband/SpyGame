@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.UpgradePage"
+             Title="بسته ویژه"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <ScrollView>
+        <Border Style="{StaticResource Card}" Margin="16">
+            <VerticalStackLayout Spacing="16" Padding="4">
+
+                <!-- هدر (۷ ضربه = بخش توسعه‌دهنده) -->
+                <Label Text="بسته ویژه 🌟"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTitleTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label x:Name="StatusLabel"
+                       Text=""
+                       HorizontalTextAlignment="Center"
+                       FontSize="14"
+                       IsVisible="False"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- قیمت -->
+                <Border StrokeShape="RoundRectangle 16" Padding="20,16"
+                        BackgroundColor="{AppThemeBinding Light=#f0f4ff, Dark=#1a2040}"
+                        Stroke="#512BD4" StrokeThickness="2"
+                        HorizontalOptions="Center" MinimumWidthRequest="240">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="خرید یک‌بار، استفاده همیشگی"
+                               Style="{StaticResource BodyDim}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="۱۲۵,۰۰۰ تومان"
+                               FontSize="30" FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="#512BD4"/>
+                        <Label Text="(پرداخت از طریق بازار / مایکت)"
+                               FontSize="12"
+                               Style="{StaticResource BodyDim}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- لیست قابلیت‌ها -->
+                <Label Text="چی شامل می‌شه:"
+                       FontSize="16" FontAttributes="Bold"/>
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- دسته‌بندی ورزش -->
+                    <Border StrokeShape="RoundRectangle 12" Padding="14,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="⚽  دسته‌بندی ورزش" FontSize="15" FontAttributes="Bold"/>
+                            <Label Text="فوتبال، کشتی، شنا، تکواندو، بسکتبال و بیش از ۶۰ کلمه"
+                                   Style="{StaticResource BodyDim}" FontSize="13" LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- دسته‌بندی فیلم و سریال -->
+                    <Border StrokeShape="RoundRectangle 12" Padding="14,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🎬  دسته‌بندی فیلم و سریال" FontSize="15" FontAttributes="Bold"/>
+                            <Label Text="بازیگر، کارگردان، اسکار، انیمیشن و بیش از ۵۰ کلمه"
+                                   Style="{StaticResource BodyDim}" FontSize="13" LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- دسته‌بندی تاریخ -->
+                    <Border StrokeShape="RoundRectangle 12" Padding="14,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🏛️  دسته‌بندی تاریخ و مشاهیر" FontSize="15" FontAttributes="Bold"/>
+                            <Label Text="حافظ، کوروش، ابن‌سینا، مشروطه و بیش از ۵۰ کلمه"
+                                   Style="{StaticResource BodyDim}" FontSize="13" LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- کلمات نامحدود -->
+                    <Border StrokeShape="RoundRectangle 12" Padding="14,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ColorSurfaceLight}, Dark={StaticResource ColorSurfaceDark}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="✏️  کلمات سفارشی نامحدود" FontSize="15" FontAttributes="Bold"/>
+                            <Label Text="رایگان: تا ۵ کلمه  |  ویژه: نامحدود"
+                                   Style="{StaticResource BodyDim}" FontSize="13"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- دکمه خرید اصلی -->
+                <Button x:Name="BuyButton"
+                        Text="خرید از بازار"
+                        Style="{StaticResource SetupPrimaryButton}"
+                        FontSize="17"
+                        HeightRequest="52"
+                        Clicked="OnBuyClicked"/>
+
+                <Label Text="پس از خرید، قابلیت‌ها بلافاصله فعال می‌شن"
+                       Style="{StaticResource BodyDim}"
+                       HorizontalTextAlignment="Center"
+                       FontSize="12"/>
+
+                <!-- بازگشت -->
+                <Button Text="بازگشت"
+                        Style="{StaticResource TimerSecondaryButton}"
+                        Clicked="OnBack"/>
+
+                <!-- بخش توسعه‌دهنده — در production پنهانه -->
+                <VerticalStackLayout x:Name="DevSection" IsVisible="False" Spacing="6">
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+                    <Label Text="حالت توسعه‌دهنده"
+                           Style="{StaticResource BodyDim}"
+                           HorizontalTextAlignment="Center" FontSize="11"/>
+                    <Button Text="فعال‌سازی آزمایشی (Dev)"
+                            BackgroundColor="#FF9800" TextColor="White" CornerRadius="8"
+                            Clicked="OnDevUnlock" FontSize="13"/>
+                    <Button Text="غیرفعال‌سازی آزمایشی (Dev)"
+                            BackgroundColor="#9E9E9E" TextColor="White" CornerRadius="8"
+                            Clicked="OnDevLock" FontSize="13"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
+</ContentPage>

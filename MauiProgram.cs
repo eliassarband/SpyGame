@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SpyGame.Data;
-using SpyGame.Views; // ⬅️ برای رجیستر صفحات
+using SpyGame.Services;
+using SpyGame.Views;
 
 namespace SpyGame
 {
@@ -25,11 +26,20 @@ namespace SpyGame
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "spygame.db3");
             builder.Services.AddSingleton(new AppDatabase(dbPath));
 
+            // SessionManager + PremiumManager: Singleton
+            builder.Services.AddSingleton<SessionManager>();
+            builder.Services.AddSingleton<PremiumManager>();
+
             // DI: صفحات
             builder.Services.AddTransient<SplashPage>();
             builder.Services.AddTransient<SetupPage>();
             builder.Services.AddTransient<RevealPage>();
             builder.Services.AddTransient<TimerPage>();
+            builder.Services.AddTransient<ResultPage>();
+            builder.Services.AddTransient<TutorialPage>();
+            builder.Services.AddTransient<StatisticsPage>();
+            builder.Services.AddTransient<CustomWordsPage>();
+            builder.Services.AddTransient<UpgradePage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

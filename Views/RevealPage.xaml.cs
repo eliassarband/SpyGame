@@ -1,6 +1,7 @@
 ﻿using Plugin.Maui.Audio;
 using Microsoft.Maui.ApplicationModel;
 using SpyGame.Data;
+using SpyGame.Models;
 
 namespace SpyGame.Views;
 
@@ -68,7 +69,8 @@ public partial class RevealPage : ContentPage
 
         // پاک‌سازی پشت کارت
         WordStack.IsVisible = false;
-        SpyLabel.IsVisible = false;
+        SpyStack.IsVisible = false;
+        SpyPartnersLabel.IsVisible = false;
         WordValueLabel.Text = string.Empty;
         SpyLabel.Text = string.Empty;
     }
@@ -86,21 +88,43 @@ public partial class RevealPage : ContentPage
         Card.RotationY = 0;
     }
 
-    private void ShowBack(string? secretWord, bool isSpy)
+    private void ShowBack(string? secretWord, bool isSpy, List<int>? allSpyIndices = null, int currentPlayerIndex = -1, bool spiesKnowEachOther = false)
     {
         _isBackSide = true;
 
         if (isSpy)
         {
             SpyLabel.Text = "جاسوس شدی :)";
-            SpyLabel.IsVisible = true;
+            SpyStack.IsVisible = true;
             WordStack.IsVisible = false;
+
+            // نمایش هم‌تیمی‌های جاسوس
+            if (spiesKnowEachOther && allSpyIndices != null && allSpyIndices.Count > 1)
+            {
+                var partners = allSpyIndices
+                    .Where(i => i != currentPlayerIndex)
+                    .Select(i => $"بازیکن {i + 1}")
+                    .ToList();
+                if (partners.Any())
+                {
+                    SpyPartnersLabel.Text = $"هم‌تیمی‌ات: {string.Join("، ", partners)}";
+                    SpyPartnersLabel.IsVisible = true;
+                }
+                else
+                {
+                    SpyPartnersLabel.IsVisible = false;
+                }
+            }
+            else
+            {
+                SpyPartnersLabel.IsVisible = false;
+            }
         }
         else
         {
             WordValueLabel.Text = secretWord ?? "";
             WordStack.IsVisible = true;
-            SpyLabel.IsVisible = false;
+            SpyStack.IsVisible = false;
         }
 
         BackSide.IsVisible = true;
@@ -110,17 +134,16 @@ public partial class RevealPage : ContentPage
         FrontSide.InputTransparent = true;
     }
 
-    private async Task FlipToBackAsync(string? secretWord, bool isSpy)
+    private async Task FlipToBackAsync(string? secretWord, bool isSpy, GameConfig? config = null, int currentIdx = -1)
     {
-        if (Card == null) { ShowBack(secretWord, isSpy); return; }
+        if (Card == null)
+        {
+            ShowBack(secretWord, isSpy, config?.SpyIndices, currentIdx, config?.SpiesKnowEachOther ?? false);
+            return;
+        }
 
-        // نیمه اول: تا 90 درجه
         await Card.RotateYTo(90, 150u, Easing.CubicIn);
-
-        // تعویض رو
-        ShowBack(secretWord, isSpy);
-
-        // از -90 به 0 تا حس flip کامل شود
+        ShowBack(secretWord, isSpy, config?.SpyIndices, currentIdx, config?.SpiesKnowEachOther ?? false);
         Card.RotationY = -90;
         await Card.RotateYTo(0, 150u, Easing.CubicOut);
     }
@@ -153,7 +176,7 @@ public partial class RevealPage : ContentPage
         {
             // کلیک اول: نمایش پشت کارت با Flip
             _buttonLocked = true;
-            await FlipToBackAsync(config.SecretWord, isSpy);
+            await FlipToBackAsync(config.SecretWord, isSpy, config, i);
             _buttonLocked = false;
         }
         else
@@ -185,6 +208,17 @@ public partial class RevealPage : ContentPage
     private async void OnBackToSetup(object sender, EventArgs e)
     {
         try { _shortBeep?.Dispose(); } catch { }
+
+        // حذف کامل دور جاری + آخرین WordHistory (لغو این دور)
+        try
+        {
+            await _db.RollbackLastRoundAsync();
+        }
+        catch
+        {
+            // اگر حذف نشد، UX رو خراب نمی‌کنیم. در لاگ می‌تونی ثبت کنی.
+        }
+
         await Shell.Current.GoToAsync($"{nameof(SetupPage)}");
     }
 }

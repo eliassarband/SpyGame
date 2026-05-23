@@ -45,14 +45,22 @@
                 </Grid.RowDefinitions>
 
                 <!-- اطلاعات بازی -->
-                <HorizontalStackLayout Grid.Row="0" Spacing="16" HorizontalOptions="Center">
-                    <Label x:Name="PlayersInfoLabel"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
-                    <Label x:Name="SpiesInfoLabel"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
-                </HorizontalStackLayout>
+                <VerticalStackLayout Grid.Row="0" Spacing="6">
+                    <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label x:Name="PlayersInfoLabel"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+                        <Label x:Name="SpiesInfoLabel"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}" />
+                    </HorizontalStackLayout>
+                    <!-- نوار پیشرفت تایمر -->
+                    <ProgressBar x:Name="TimerProgress"
+                                 Progress="1"
+                                 ProgressColor="#4CAF50"
+                                 HeightRequest="8"
+                                 Margin="0,2"/>
+                </VerticalStackLayout>
 
                 <!-- تایمر -->
                 <Label x:Name="TimerLabel"

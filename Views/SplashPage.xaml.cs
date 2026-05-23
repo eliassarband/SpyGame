@@ -43,6 +43,10 @@ public partial class SplashPage : ContentPage
         // مکث کوتاه برای حس اسپلش
         await Task.Delay(800);
 
-        await Shell.Current.GoToAsync(nameof(SetupPage));
+        bool tutorialShown = Preferences.Get("tutorial_shown", false);
+        if (!tutorialShown)
+            await Shell.Current.GoToAsync(nameof(TutorialPage));
+        else
+            await Shell.Current.GoToAsync(nameof(SetupPage));
     }
 }

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SpyGame.Views.TutorialPage"
+             Title="آموزش بازی"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{AppThemeBinding Light={StaticResource ColorBackgroundLight}, Dark={StaticResource ColorBackgroundDark}}">
+
+    <ScrollView>
+        <Border Style="{StaticResource Card}" Margin="16">
+            <VerticalStackLayout Spacing="16" Padding="4">
+
+                <Label Text="آموزش بازی جاسوس"
+                       Style="{StaticResource TitleLarge}"
+                       HorizontalOptions="Center"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- بخش ۱ -->
+                <Label Text="بازی چیه؟"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                <Label TextType="Text" FontSize="15" LineBreakMode="WordWrap">
+                    <Label.Text>یه کلمه مخفی بین بازیکنان انتخاب می‌شه. اکثر بازیکنا کلمه رو می‌بینن، ولی یه یا چند نفر «جاسوس» هستن و کلمه رو نمی‌بینن.</Label.Text>
+                </Label>
+
+                <!-- بخش ۲ -->
+                <Label Text="هدف بازیکنان"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                <Label Text="پیدا کردن جاسوس و رای دادن بهش. ولی باید مراقب باشید: جاسوس نباید بفهمه کلمه چیه!"
+                       FontSize="15"
+                       LineBreakMode="WordWrap"/>
+
+                <!-- بخش ۳ -->
+                <Label Text="هدف جاسوس"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                <Label Text="پنهان موندن بین بازیکنا و اگه لو رفت، حدس زدن کلمه مخفی!"
+                       FontSize="15"
+                       LineBreakMode="WordWrap"/>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- قدم‌ها -->
+                <Label Text="مراحل بازی"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="① تنظیمات بازی رو بذارید (تعداد بازیکن، جاسوس، زمان)"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                    <Label Text="② هر بازیکن به نوبت گوشی رو می‌گیره و کلمه‌ش رو می‌بینه (یا جاسوسه)"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                    <Label Text="③ تایمر شروع می‌شه — همه با هم بحث می‌کنن"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                    <Label Text="④ بعد از تایمر، رای‌گیری انجام می‌شه — پُررای‌ترین نفر متهمه"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                    <Label Text="⑤ اگه جاسوس لو رفت، شانس داره کلمه رو حدس بزنه — اگه درست حدس بزنه، جاسوس برنده‌ست!"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- امتیازدهی -->
+                <Label Text="امتیازدهی"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="جاسوس برنده شد: +۲ امتیاز برای جاسوس"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                    <Label Text="بازیکنان بردند: +۱ امتیاز برای هر بازیکن غیرجاسوس"
+                           FontSize="14" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+
+                <!-- نکته -->
+                <Label Text="نکته: بحث کنید، سوال بپرسید، ولی نه خیلی واضح که جاسوس بفهمه!"
+                       Style="{StaticResource BodyDim}"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"/>
+
+                <Button Text="بریم بازی کنیم!"
+                        Style="{StaticResource SetupPrimaryButton}"
+                        Clicked="OnStartGameClicked"
+                        Margin="0,8,0,0"/>
+
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
+</ContentPage>

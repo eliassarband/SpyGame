@@ -166,15 +166,22 @@
                         </VerticalStackLayout>
 
                         <!-- حالت جاسوس -->
-                        <Label x:Name="SpyLabel"
-                               Text=""
-                               FontSize="36"
-                               FontAttributes="Bold"
-                               HorizontalOptions="FillAndExpand"
-                               HorizontalTextAlignment="Center"
-                               VerticalTextAlignment="Center"
-                               IsVisible="False"
-                               TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}"/>
+                        <VerticalStackLayout x:Name="SpyStack" IsVisible="False" Spacing="6" HorizontalOptions="FillAndExpand">
+                            <Label x:Name="SpyLabel"
+                                   Text=""
+                                   FontSize="36"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="FillAndExpand"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource ColorTextPrimaryLight}, Dark={StaticResource ColorTextPrimaryDark}}"/>
+                            <Label x:Name="SpyPartnersLabel"
+                                   Text=""
+                                   FontSize="14"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                                   IsVisible="False"/>
+                        </VerticalStackLayout>
                     </Grid>
 
 
