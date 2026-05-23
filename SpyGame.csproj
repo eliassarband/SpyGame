@@ -13,15 +13,15 @@
     <Nullable>enable</Nullable>
 
     <!-- نام اپ -->
-    <ApplicationTitle>Spy</ApplicationTitle>
+    <ApplicationTitle>بازی جاسوس</ApplicationTitle>
 
     <!-- شناسه‌ی بسته (Android Package Name) -->
     <ApplicationId>com.elias.spygame</ApplicationId>
 
     <!-- نسخه‌ها -->
     <!-- DisplayVersion ~ VersionName (مثلاً 1.0.3) -->
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <!-- VersionCode (عددی و افزایشی) -->
+    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <!-- VersionCode (عددی و افزایشی — هر بار آپدیت باید افزایش یابد) -->
     <ApplicationVersion>1</ApplicationVersion>
 
     <!-- حداقل پلتفرم‌های پشتیبانی‌شده -->
