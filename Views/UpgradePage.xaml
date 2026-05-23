@@ -41,7 +41,7 @@
                                FontSize="30" FontAttributes="Bold"
                                HorizontalOptions="Center"
                                TextColor="#512BD4"/>
-                        <Label Text="(پرداخت از طریق بازار / مایکت)"
+                        <Label Text="(پرداخت از طریق مایکت)"
                                FontSize="12"
                                Style="{StaticResource BodyDim}"
                                HorizontalOptions="Center"/>
@@ -104,7 +104,7 @@
 
                 <!-- دکمه خرید اصلی -->
                 <Button x:Name="BuyButton"
-                        Text="خرید از بازار"
+                        Text="خرید از مایکت"
                         Style="{StaticResource SetupPrimaryButton}"
                         FontSize="17"
                         HeightRequest="52"

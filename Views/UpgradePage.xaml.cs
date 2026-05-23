@@ -6,30 +6,28 @@ namespace SpyGame.Views;
 public partial class UpgradePage : ContentPage
 {
     private readonly PremiumManager _premium;
+    private readonly IBillingService _billing;
 
-    // تعداد ضربه روی عنوان برای نمایش بخش dev (در production قابل نگه‌داشتن)
     private int _titleTapCount;
 
-    public UpgradePage(PremiumManager premium)
+    public UpgradePage(PremiumManager premium, IBillingService billing)
     {
         InitializeComponent();
         _premium = premium;
+        _billing = billing;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
         _titleTapCount = 0;
-        RefreshStatus();
-
-        // بخش Dev فقط با ۷ ضربه روی عنوان نمایان می‌شه
         DevSection.IsVisible = false;
+        RefreshStatus();
     }
 
     private void RefreshStatus()
     {
         bool isPremium = _premium.IsUnlocked(PremiumFeature.Premium);
-
         if (isPremium)
         {
             StatusLabel.Text = "✅ بسته ویژه فعال است";
@@ -41,12 +39,11 @@ public partial class UpgradePage : ContentPage
         else
         {
             StatusLabel.IsVisible = false;
-            BuyButton.Text = "خرید از بازار";
+            BuyButton.Text = "خرید از مایکت";
             BuyButton.IsEnabled = true;
         }
     }
 
-    // ضربه روی عنوان برای نمایش بخش dev (۷ بار)
     private void OnTitleTapped(object sender, TappedEventArgs e)
     {
         _titleTapCount++;
@@ -59,15 +56,33 @@ public partial class UpgradePage : ContentPage
 
     private async void OnBuyClicked(object sender, EventArgs e)
     {
-        // ===================================================
-        // اینجا SDK بازار یا مایکت صدا زده می‌شه
-        // فعلاً: راهنمای موقت نمایش داده می‌شه
-        // ===================================================
-        await DisplayAlert(
-            "خرید از بازار",
-            "اتصال به درگاه پرداخت بازار به زودی فعال می‌شه.\n\n" +
-            "برای اطلاع از زمان انتشار، اپ را دنبال کنید.",
-            "باشه");
+        BuyButton.IsEnabled = false;
+        BuyButton.Text = "در حال اتصال به مایکت...";
+
+        var result = await _billing.LaunchPurchaseAsync("premium_unlock");
+
+        switch (result.Code)
+        {
+            case BillingResultCode.Ok:
+                RefreshStatus();
+                await DisplayAlert("خرید موفق 🎉", "بسته ویژه فعال شد!\nاز پشتیبانی شما ممنونیم.", "عالیه");
+                break;
+
+            case BillingResultCode.UserCancelled:
+                RefreshStatus(); // re-enables the button
+                break;
+
+            case BillingResultCode.ItemAlreadyOwned:
+                await _premium.UnlockAsync(PremiumFeature.Premium);
+                RefreshStatus();
+                await DisplayAlert("قبلاً خریداری شده", "بسته ویژه قبلاً خریداری شده و اکنون فعال است.", "باشه");
+                break;
+
+            default:
+                RefreshStatus();
+                await DisplayAlert("خطا", result.Message ?? "خطای ناشناخته. لطفاً دوباره امتحان کنید.", "باشه");
+                break;
+        }
     }
 
     private async void OnBack(object sender, EventArgs e) =>

@@ -8,6 +8,9 @@
   <uses-permission android:name="android.permission.VIBRATE" />
   <!-- Android 13+ (API 33) -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- مایکت IAP -->
+  <uses-permission android:name="ir.mservices.market.BILLING" />
+  <uses-permission android:name="android.permission.INTERNET" />
 
   <!--
     سازگاری با گوشی‌های قدیمی:
