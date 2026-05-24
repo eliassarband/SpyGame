@@ -18,6 +18,14 @@
     - INTERNET و ACCESS_NETWORK_STATE حذف شد چون بازی آفلاینه
   -->
 
+  <!-- Android 11+ (API 30+): اعلام صریح بسته‌های مورد نیاز برای IAP -->
+  <queries>
+    <package android:name="ir.mservices.market" />
+    <intent>
+      <action android:name="ir.mservices.market.InAppBillingService.BIND" />
+    </intent>
+  </queries>
+
   <application
       android:allowBackup="false"
       android:label="Spy"
