@@ -30,9 +30,10 @@ namespace SpyGame
             builder.Services.AddSingleton<SessionManager>();
             builder.Services.AddSingleton<PremiumManager>();
 
-            // Billing: پرداخت مایکت (اندروید) / NoOp روی سایر پلتفرم‌ها
+            // Billing: مایکت + بازار (اندروید) / NoOp روی سایر پلتفرم‌ها
 #if ANDROID
             builder.Services.AddSingleton<IBillingService, SpyGame.Platforms.Android.MyketBillingService>();
+            builder.Services.AddSingleton<IBillingService, SpyGame.Platforms.Android.BazaarBillingService>();
 #else
             builder.Services.AddSingleton<IBillingService, NullBillingService>();
 #endif

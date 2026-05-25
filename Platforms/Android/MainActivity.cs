@@ -35,9 +35,8 @@ namespace SpyGame
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-
-            if (requestCode == Platforms.Android.MyketBillingService.RC_PURCHASE)
-                Platforms.Android.MyketBillingService.Instance?.HandleActivityResult(resultCode, data);
+            Platforms.Android.MyketBillingService.Instance?.ForwardActivityResult(requestCode, resultCode, data);
+            Platforms.Android.BazaarBillingService.Instance?.ForwardActivityResult(requestCode, resultCode, data);
         }
     }
 }

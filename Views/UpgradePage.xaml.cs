@@ -6,15 +6,18 @@ namespace SpyGame.Views;
 public partial class UpgradePage : ContentPage
 {
     private readonly PremiumManager _premium;
-    private readonly IBillingService _billing;
+    private readonly IBillingService? _myket;
+    private readonly IBillingService? _bazaar;
 
     private int _titleTapCount;
 
-    public UpgradePage(PremiumManager premium, IBillingService billing)
+    public UpgradePage(PremiumManager premium, IEnumerable<IBillingService> billingServices)
     {
         InitializeComponent();
         _premium = premium;
-        _billing = billing;
+        var services = billingServices.ToList();
+        _myket = services.FirstOrDefault(s => s.MarketName == "Myket");
+        _bazaar = services.FirstOrDefault(s => s.MarketName == "Bazaar");
     }
 
     protected override void OnAppearing()
@@ -33,14 +36,18 @@ public partial class UpgradePage : ContentPage
             StatusLabel.Text = "✅ بسته ویژه فعال است";
             StatusLabel.TextColor = Color.FromArgb("#4CAF50");
             StatusLabel.IsVisible = true;
-            BuyButton.Text = "بسته ویژه فعال است ✅";
-            BuyButton.IsEnabled = false;
+            BuyMyketButton.Text = "بسته ویژه فعال است ✅";
+            BuyMyketButton.IsEnabled = false;
+            BuyBazaarButton.IsEnabled = false;
+            BuyBazaarButton.Text = "بسته ویژه فعال است ✅";
         }
         else
         {
             StatusLabel.IsVisible = false;
-            BuyButton.Text = "خرید از مایکت";
-            BuyButton.IsEnabled = true;
+            BuyMyketButton.Text = "خرید از مایکت";
+            BuyMyketButton.IsEnabled = true;
+            BuyBazaarButton.Text = "خرید از بازار";
+            BuyBazaarButton.IsEnabled = true;
         }
     }
 
@@ -54,33 +61,49 @@ public partial class UpgradePage : ContentPage
         }
     }
 
-    private async void OnBuyClicked(object sender, EventArgs e)
-    {
-        BuyButton.IsEnabled = false;
-        BuyButton.Text = "در حال اتصال به مایکت...";
+    private async void OnBuyMyketClicked(object sender, EventArgs e) =>
+        await DoPurchase(_myket, BuyMyketButton, "مایکت");
 
-        var result = await _billing.LaunchPurchaseAsync("premium_unlock");
+    private async void OnBuyBazaarClicked(object sender, EventArgs e) =>
+        await DoPurchase(_bazaar, BuyBazaarButton, "بازار");
+
+    private async Task DoPurchase(IBillingService? service, Button button, string marketLabel)
+    {
+        if (service == null)
+        {
+            await DisplayAlert("خطا", $"سرویس {marketLabel} در دسترس نیست.", "باشه");
+            return;
+        }
+
+        button.IsEnabled = false;
+        button.Text = $"در حال اتصال به {marketLabel}...";
+
+        var result = await service.LaunchPurchaseAsync("premium_unlock");
 
         switch (result.Code)
         {
             case BillingResultCode.Ok:
                 RefreshStatus();
-                await DisplayAlert("خرید موفق 🎉", "بسته ویژه فعال شد!\nاز پشتیبانی شما ممنونیم.", "عالیه");
+                await DisplayAlert("خرید موفق 🎉",
+                    "بسته ویژه فعال شد!\nاز پشتیبانی شما ممنونیم.", "عالیه");
                 break;
 
             case BillingResultCode.UserCancelled:
-                RefreshStatus(); // re-enables the button
+                RefreshStatus();
                 break;
 
             case BillingResultCode.ItemAlreadyOwned:
+                await service.LaunchPurchaseAsync("premium_unlock"); // restore
                 await _premium.UnlockAsync(PremiumFeature.Premium);
                 RefreshStatus();
-                await DisplayAlert("قبلاً خریداری شده", "بسته ویژه قبلاً خریداری شده و اکنون فعال است.", "باشه");
+                await DisplayAlert("قبلاً خریداری شده",
+                    "بسته ویژه قبلاً خریداری شده و اکنون فعال است.", "باشه");
                 break;
 
             default:
                 RefreshStatus();
-                await DisplayAlert("خطا", result.Message ?? "خطای ناشناخته. لطفاً دوباره امتحان کنید.", "باشه");
+                await DisplayAlert("خطا",
+                    result.Message ?? "خطای ناشناخته. لطفاً دوباره امتحان کنید.", "باشه");
                 break;
         }
     }

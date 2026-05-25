@@ -102,13 +102,21 @@
                 <BoxView HeightRequest="1"
                          BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
 
-                <!-- دکمه خرید اصلی -->
-                <Button x:Name="BuyButton"
-                        Text="خرید از مایکت"
-                        Style="{StaticResource SetupPrimaryButton}"
-                        FontSize="17"
-                        HeightRequest="52"
-                        Clicked="OnBuyClicked"/>
+                <!-- دکمه‌های خرید -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0"
+                            x:Name="BuyMyketButton"
+                            Text="خرید از مایکت"
+                            BackgroundColor="#1A7F4B" TextColor="White"
+                            CornerRadius="10" FontSize="15" HeightRequest="52"
+                            Clicked="OnBuyMyketClicked"/>
+                    <Button Grid.Column="1"
+                            x:Name="BuyBazaarButton"
+                            Text="خرید از بازار"
+                            BackgroundColor="#E84025" TextColor="White"
+                            CornerRadius="10" FontSize="15" HeightRequest="52"
+                            Clicked="OnBuyBazaarClicked"/>
+                </Grid>
 
                 <Label Text="پس از خرید، قابلیت‌ها بلافاصله فعال می‌شن"
                        Style="{StaticResource BodyDim}"

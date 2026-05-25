@@ -16,5 +16,6 @@ public record PurchaseResult(BillingResultCode Code, string? Message);
 
 public interface IBillingService
 {
+    string MarketName { get; }
     Task<PurchaseResult> LaunchPurchaseAsync(string sku);
 }
