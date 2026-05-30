@@ -20,9 +20,9 @@
 
     <!-- نسخه‌ها -->
     <!-- DisplayVersion ~ VersionName (مثلاً 1.0.3) -->
-    <ApplicationDisplayVersion>1.0.3</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.0.4</ApplicationDisplayVersion>
     <!-- VersionCode (عددی و افزایشی — هر بار آپدیت باید افزایش یابد) -->
-    <ApplicationVersion>4</ApplicationVersion>
+    <ApplicationVersion>5</ApplicationVersion>
 
     <!-- حداقل پلتفرم‌های پشتیبانی‌شده -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
