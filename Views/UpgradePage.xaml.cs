@@ -100,6 +100,18 @@ public partial class UpgradePage : ContentPage
                     "بسته ویژه قبلاً خریداری شده و اکنون فعال است.", "باشه");
                 break;
 
+            case BillingResultCode.DeveloperError:
+                RefreshStatus();
+                await DisplayAlert("خطا",
+                    $"اپ هنوز در {marketLabel} راه‌اندازی نشده یا محصول تعریف نشده.\n(کد ۵ — Developer Error)",
+                    "باشه");
+                break;
+
+            case BillingResultCode.BillingUnavailable:
+                RefreshStatus();
+                await DisplayAlert("خطا", result.Message ?? $"{marketLabel} در دسترس نیست.", "باشه");
+                break;
+
             default:
                 RefreshStatus();
                 await DisplayAlert("خطا",
