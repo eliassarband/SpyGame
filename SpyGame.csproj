@@ -1,5 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- بازار هدف: Myket یا Bazaar — پیش‌فرض Myket -->
+  <PropertyGroup>
+    <MarketTarget Condition="'$(MarketTarget)' == ''">Myket</MarketTarget>
+  </PropertyGroup>
+
+  <!-- Define برای کد C# -->
+  <PropertyGroup Condition="'$(MarketTarget)' == 'Myket'">
+    <DefineConstants>$(DefineConstants);MARKET_MYKET</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MarketTarget)' == 'Bazaar'">
+    <DefineConstants>$(DefineConstants);MARKET_BAZAAR</DefineConstants>
+    <!-- مانیفست بدون مجوز ir.mservices.market.BILLING -->
+    <AndroidManifest>Platforms\Android\AndroidManifest.Bazaar.xml</AndroidManifest>
+  </PropertyGroup>
+
   <PropertyGroup>
     <!-- پلتفرم‌ها -->
     <TargetFrameworks>net9.0-ios;net9.0-maccatalyst;net9.0-android35.0</TargetFrameworks>
@@ -20,9 +35,9 @@
 
     <!-- نسخه‌ها -->
     <!-- DisplayVersion ~ VersionName (مثلاً 1.0.3) -->
-    <ApplicationDisplayVersion>1.0.4</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.0.5</ApplicationDisplayVersion>
     <!-- VersionCode (عددی و افزایشی — هر بار آپدیت باید افزایش یابد) -->
-    <ApplicationVersion>5</ApplicationVersion>
+    <ApplicationVersion>6</ApplicationVersion>
 
     <!-- حداقل پلتفرم‌های پشتیبانی‌شده -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>

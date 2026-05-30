@@ -25,6 +25,14 @@ public partial class UpgradePage : ContentPage
         base.OnAppearing();
         _titleTapCount = 0;
         DevSection.IsVisible = false;
+
+        // هر نسخه فقط دکمه مارکت خودش را نشان می‌دهد
+#if MARKET_MYKET
+        BuyBazaarButton.IsVisible = false;
+#elif MARKET_BAZAAR
+        BuyMyketButton.IsVisible = false;
+#endif
+
         RefreshStatus();
     }
 

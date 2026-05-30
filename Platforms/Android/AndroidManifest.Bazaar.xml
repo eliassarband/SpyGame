@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
+  <!-- مجوزها -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <!-- Android 13+ (API 33) -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <!-- بدون ir.mservices.market.BILLING — نسخه بازار -->
+
+  <!-- Android 11+ (API 30+) -->
+  <queries>
+    <!-- بازار -->
+    <package android:name="com.farsitel.bazaar" />
+    <intent>
+      <action android:name="ir.cafebazaar.pardakht.InAppBillingService.BIND" />
+    </intent>
+  </queries>
+
+  <application
+      android:allowBackup="false"
+      android:label="Spy"
+      android:icon="@mipmap/appicon"
+      android:roundIcon="@mipmap/appicon"
+      android:supportsRtl="true"
+      tools:targetApi="34">
+
+    <!-- Foreground Service برای تایمر در پس‌زمینه -->
+    <service
+        android:name="SpyGame.Platforms.Android.Services.GameTimerService"
+        android:exported="false"
+        android:foregroundServiceType="mediaPlayback" />
+
+  </application>
+</manifest>
