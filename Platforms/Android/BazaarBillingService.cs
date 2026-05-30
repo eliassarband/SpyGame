@@ -11,7 +11,7 @@ internal sealed class BazaarBillingService : IabBillingServiceBase
     protected override string ServicePackage =>
         "com.farsitel.bazaar";
     protected override string InterfaceDescriptor =>
-        "ir.cafebazaar.pardakht.IInAppBillingService";
+        "com.android.vending.billing.IInAppBillingService";
     protected override int PurchaseRequestCode => 10002;
 
     // کلید عمومی RSA از کنسول توسعه‌دهنده بازار

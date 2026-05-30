@@ -107,13 +107,13 @@
                     <Button Grid.Column="0"
                             x:Name="BuyMyketButton"
                             Text="خرید از مایکت"
-                            BackgroundColor="#1A7F4B" TextColor="White"
+                            BackgroundColor="#0055A5" TextColor="White"
                             CornerRadius="10" FontSize="15" HeightRequest="52"
                             Clicked="OnBuyMyketClicked"/>
                     <Button Grid.Column="1"
                             x:Name="BuyBazaarButton"
                             Text="خرید از بازار"
-                            BackgroundColor="#E84025" TextColor="White"
+                            BackgroundColor="#2E7D32" TextColor="White"
                             CornerRadius="10" FontSize="15" HeightRequest="52"
                             Clicked="OnBuyBazaarClicked"/>
                 </Grid>
